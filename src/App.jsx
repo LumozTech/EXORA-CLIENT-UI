@@ -12,6 +12,9 @@ import TopRated from "./pages/TopRated";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import ProceedToCheckout from "./pages/ProceedToCheckout";
+import MyOrders from "./pages/MyOrders";
+import Wishlist from "./pages/Wishlist";
+import AllProduct from "./pages/AllProduct";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -61,6 +64,9 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<ProceedToCheckout />} />
+        <Route path="/orders" element={<MyOrders />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/all-products" element={<AllProduct />} />
       </Routes>
     </Router>
   );
