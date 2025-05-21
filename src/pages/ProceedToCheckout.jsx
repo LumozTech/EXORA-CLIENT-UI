@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { FaUniversity, FaMoneyBillWave, FaCreditCard } from "react-icons/fa";
+import {
+  FaUniversity,
+  FaMoneyBillWave,
+  FaCreditCard,
+  FaCheckCircle,
+  FaTimesCircle,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -33,6 +39,8 @@ const ProceedToCheckout = () => {
     postal: "",
     country: "",
   });
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showFailed, setShowFailed] = useState(false);
 
   const navigate = useNavigate();
 
@@ -43,9 +51,15 @@ const ProceedToCheckout = () => {
   const handlePayment = (e) => {
     e.preventDefault();
     setProcessing(true);
+    // Simulate payment result
     setTimeout(() => {
       setProcessing(false);
-      navigate("/orders");
+      // Simulate random success/fail (replace with real logic)
+      if (Math.random() > 0.3) {
+        setShowSuccess(true);
+      } else {
+        setShowFailed(true);
+      }
     }, 2000);
   };
 
@@ -360,6 +374,47 @@ const ProceedToCheckout = () => {
           </form>
         </div>
       </div>
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="flex flex-col items-center p-8 bg-white shadow-2xl dark:bg-gray-900 rounded-2xl animate-fade-in">
+            <FaCheckCircle className="mb-4 text-6xl text-green-500" />
+            <h2 className="mb-2 text-2xl font-bold text-green-700 dark:text-green-400">
+              Payment Successful!
+            </h2>
+            <p className="mb-4 text-gray-700 dark:text-gray-200">
+              Your order has been placed successfully.
+            </p>
+            <button
+              className="px-6 py-2 font-semibold text-white transition-all rounded-full shadow bg-gradient-to-r from-primary to-secondary hover:scale-105"
+              onClick={() => {
+                setShowSuccess(false);
+                navigate("/orders");
+              }}
+            >
+              Go to My Orders
+            </button>
+          </div>
+        </div>
+      )}
+      {showFailed && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="flex flex-col items-center p-8 bg-white shadow-2xl dark:bg-gray-900 rounded-2xl animate-fade-in">
+            <FaTimesCircle className="mb-4 text-6xl text-red-500" />
+            <h2 className="mb-2 text-2xl font-bold text-red-700 dark:text-red-400">
+              Payment Failed
+            </h2>
+            <p className="mb-4 text-gray-700 dark:text-gray-200">
+              Something went wrong. Please try again.
+            </p>
+            <button
+              className="px-6 py-2 font-semibold text-white transition-all rounded-full shadow bg-gradient-to-r from-primary to-secondary hover:scale-105"
+              onClick={() => setShowFailed(false)}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
