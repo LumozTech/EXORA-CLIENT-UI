@@ -9,6 +9,7 @@ import KidsWear from "./pages/KidsWear";
 import MensWear from "./pages/MensWear";
 import WomensWear from "./pages/WomensWear";
 import TopRated from "./pages/TopRated";
+import ProductDetails from "./pages/ProductDetails";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -44,6 +45,16 @@ const App = () => {
         <Route path="/mens-wear" element={<MensWear />} />
         <Route path="/womens-wear" element={<WomensWear />} />
         <Route path="/top-rated" element={<TopRated />} />
+        <Route
+          path="/product/:id"
+          element={
+            <ProductDetails
+              orderPopup={orderPopup}
+              setOrderPopup={setOrderPopup}
+              handleOrderPopup={handleOrderPopup}
+            />
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
