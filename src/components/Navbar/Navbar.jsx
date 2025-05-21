@@ -4,12 +4,13 @@ import { IoMdSearch } from "react-icons/io";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaCaretDown } from "react-icons/fa";
 import DarkMode from "./DarkMode";
+import { useLocation, Link } from "react-router-dom";
 
 const Menu = [
   {
     id: 1,
     name: "Home",
-    link: "/#",
+    link: "/",
   },
   {
     id: 2,
@@ -19,15 +20,15 @@ const Menu = [
   {
     id: 3,
     name: "Kids Wear",
-    link: "/#",
+    link: "/kids-wear",
   },
   {
-    id: 3,
+    id: 4,
     name: "Mens Wear",
     link: "/#",
   },
   {
-    id: 3,
+    id: 5,
     name: "Womens Wear",
     link: "/#",
   },
@@ -52,16 +53,29 @@ const DropdownLinks = [
 ];
 
 const Navbar = ({ handleOrderPopup }) => {
+  const location = useLocation();
+
+  // Helper to check if menu item is active
+  const isActive = (link) => {
+    // For hash links, only highlight if path matches "/"
+    if (link.startsWith("/#")) {
+      return (
+        location.pathname === "/" && location.hash === link.replace("/", "")
+      );
+    }
+    return location.pathname === link;
+  };
+
   return (
     <div className="relative z-40 duration-200 bg-white shadow-md dark:bg-gray-900 dark:text-white">
       {/* upper Navbar */}
       <div className="py-2 bg-primary/40">
         <div className="container flex items-center justify-between">
           <div>
-            <a href="#" className="flex gap-2 text-2xl font-bold sm:text-3xl">
+            <Link to="/" className="flex gap-2 text-2xl font-bold sm:text-3xl">
               <img src={Logo} alt="Logo" className="w-10" />
               Shopsy
-            </a>
+            </Link>
           </div>
 
           {/* search bar */}
@@ -98,12 +112,16 @@ const Navbar = ({ handleOrderPopup }) => {
         <ul className="items-center hidden gap-4 sm:flex">
           {Menu.map((data) => (
             <li key={data.id}>
-              <a
-                href={data.link}
-                className="inline-block px-4 duration-200 hover:text-primary"
+              <Link
+                to={data.link}
+                className={`inline-block px-4 duration-200 hover:text-primary ${
+                  isActive(data.link)
+                    ? "text-primary font-bold underline underline-offset-8"
+                    : ""
+                }`}
               >
                 {data.name}
-              </a>
+              </Link>
             </li>
           ))}
           {/* Simple Dropdown and Links */}

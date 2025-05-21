@@ -5,6 +5,7 @@ import "aos/dist/aos.css";
 import HomePage from "../src/pages/HomePage";
 import Login from "../src/pages/Login";
 import Register from "./pages/Register";
+import KidsWear from "./pages/KidsWear";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -36,6 +37,7 @@ const App = () => {
             />
           }
         />
+        <Route path="/kids-wear" element={<KidsWear />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
