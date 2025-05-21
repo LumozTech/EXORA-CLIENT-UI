@@ -15,7 +15,7 @@ const Menu = [
   {
     id: 2,
     name: "Top Rated",
-    link: "/#services",
+    link: "/top-rated",
   },
   {
     id: 3,
@@ -25,12 +25,12 @@ const Menu = [
   {
     id: 4,
     name: "Mens Wear",
-    link: "/#",
+    link: "/mens-wear",
   },
   {
     id: 5,
     name: "Womens Wear",
-    link: "/#",
+    link: "/womens-wear",
   },
 ];
 

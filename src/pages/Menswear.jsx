@@ -6,85 +6,85 @@ import Subscribe from "../components/Subscribe/Subscribe";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-// Sample kids wear products data
-const kidsProducts = [
+// Sample mens wear products data
+const mensProducts = [
   {
     id: 1,
-    name: "Cartoon T-Shirt",
-    price: "Rs. 1,200",
-    image: "https://images.pexels.com/photos/1648376/pexels-photo-1648376.jpeg",
+    name: "Classic Polo Shirt",
+    price: "Rs. 2,000",
+    image: "https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg",
   },
   {
     id: 2,
-    name: "Denim Shorts",
-    price: "Rs. 1,000",
-    image: "https://images.pexels.com/photos/3661350/pexels-photo-3661350.jpeg",
+    name: "Denim Jeans",
+    price: "Rs. 2,800",
+    image: "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
   },
   {
     id: 3,
-    name: "Summer Dress",
-    price: "Rs. 1,500",
-    image: "https://images.pexels.com/photos/3661351/pexels-photo-3661351.jpeg",
+    name: "Formal Suit",
+    price: "Rs. 8,500",
+    image: "https://images.pexels.com/photos/1707827/pexels-photo-1707827.jpeg",
   },
   {
     id: 4,
-    name: "Hooded Jacket",
-    price: "Rs. 2,000",
-    image: "https://images.pexels.com/photos/3661352/pexels-photo-3661352.jpeg",
+    name: "Casual T-Shirt",
+    price: "Rs. 1,200",
+    image: "https://images.pexels.com/photos/532220/pexels-photo-532220.jpeg",
   },
   {
     id: 5,
-    name: "Printed Kurta",
-    price: "Rs. 1,400",
-    image: "https://images.pexels.com/photos/3661353/pexels-photo-3661353.jpeg",
+    name: "Leather Jacket",
+    price: "Rs. 6,000",
+    image: "https://images.pexels.com/photos/1707826/pexels-photo-1707826.jpeg",
   },
   {
     id: 6,
-    name: "Dungaree Set",
-    price: "Rs. 1,800",
-    image: "https://images.pexels.com/photos/3661354/pexels-photo-3661354.jpeg",
+    name: "Hoodie",
+    price: "Rs. 2,500",
+    image: "https://images.pexels.com/photos/2983463/pexels-photo-2983463.jpeg",
   },
   {
     id: 7,
-    name: "Party Frock",
-    price: "Rs. 2,200",
-    image: "https://images.pexels.com/photos/3661355/pexels-photo-3661355.jpeg",
+    name: "Checked Shirt",
+    price: "Rs. 1,800",
+    image: "https://images.pexels.com/photos/532221/pexels-photo-532221.jpeg",
   },
   {
     id: 8,
-    name: "Sports Tracksuit",
-    price: "Rs. 2,500",
-    image: "https://images.pexels.com/photos/3661356/pexels-photo-3661356.jpeg",
+    name: "Chinos",
+    price: "Rs. 2,400",
+    image: "https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg",
   },
   {
     id: 9,
-    name: "Winter Sweater",
-    price: "Rs. 1,900",
-    image: "https://images.pexels.com/photos/3661357/pexels-photo-3661357.jpeg",
+    name: "Sweatshirt",
+    price: "Rs. 2,100",
+    image: "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
   },
   {
     id: 10,
-    name: "Printed Leggings",
-    price: "Rs. 900",
-    image: "https://images.pexels.com/photos/3661358/pexels-photo-3661358.jpeg",
+    name: "Kurta Pajama",
+    price: "Rs. 2,900",
+    image: "https://images.pexels.com/photos/1707827/pexels-photo-1707827.jpeg",
   },
   {
     id: 11,
-    name: "Ethnic Sherwani",
-    price: "Rs. 2,800",
-    image: "https://images.pexels.com/photos/3661359/pexels-photo-3661359.jpeg",
+    name: "Blazer",
+    price: "Rs. 5,500",
+    image: "https://images.pexels.com/photos/1707826/pexels-photo-1707826.jpeg",
   },
   {
     id: 12,
-    name: "Casual Shorts",
-    price: "Rs. 1,100",
-    image: "https://images.pexels.com/photos/3661360/pexels-photo-3661360.jpeg",
+    name: "Track Pants",
+    price: "Rs. 1,600",
+    image: "https://images.pexels.com/photos/2983463/pexels-photo-2983463.jpeg",
   },
 ];
 
 const PRODUCTS_PER_PAGE = 9; // 3 rows if each row has 3 products
 
-const KidsWear = () => {
+const MensWear = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   React.useEffect(() => {
@@ -98,9 +98,9 @@ const KidsWear = () => {
   }, []);
 
   // Pagination logic
-  const totalPages = Math.ceil(kidsProducts.length / PRODUCTS_PER_PAGE);
+  const totalPages = Math.ceil(mensProducts.length / PRODUCTS_PER_PAGE);
   const startIdx = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const currentProducts = kidsProducts.slice(
+  const currentProducts = mensProducts.slice(
     startIdx,
     startIdx + PRODUCTS_PER_PAGE
   );
@@ -113,28 +113,28 @@ const KidsWear = () => {
   return (
     <div className="duration-200 bg-white dark:bg-gray-900 dark:text-white">
       <Navbar />
-      {/* Kids Wear Hero Section */}
+      {/* Mens Wear Hero Section */}
       <section
-        className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-yellow-100 via-pink-100 to-blue-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
+        className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-blue-100 via-gray-100 to-blue-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
         data-aos="fade-down"
       >
         <h1
           className="mb-4 text-4xl font-bold md:text-5xl text-primary"
           data-aos="fade-up"
         >
-          Kids Wear Collection
+          Mens Wear Collection
         </h1>
         <p
           className="max-w-xl text-lg text-center text-gray-700 dark:text-gray-300"
           data-aos="fade-up"
           data-aos-delay="100"
         >
-          Discover our adorable and comfortable kids wear collection, perfect
-          for every occasion. Bright colors, playful designs, and soft fabrics
-          for your little ones!
+          Explore our stylish and comfortable mens wear collection, perfect for
+          every occasion. Modern designs, premium fabrics, and the latest trends
+          for men!
         </p>
       </section>
-      {/* Kids Wear Products with Pagination */}
+      {/* Mens Wear Products with Pagination */}
       <div data-aos="fade-up" className="container px-4 py-8 mx-auto">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
           {currentProducts.map((product, idx) => (
@@ -189,4 +189,4 @@ const KidsWear = () => {
   );
 };
 
-export default KidsWear;
+export default MensWear;

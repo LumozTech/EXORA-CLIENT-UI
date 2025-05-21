@@ -6,6 +6,9 @@ import HomePage from "../src/pages/HomePage";
 import Login from "../src/pages/Login";
 import Register from "./pages/Register";
 import KidsWear from "./pages/KidsWear";
+import MensWear from "./pages/MensWear";
+import WomensWear from "./pages/WomensWear";
+import TopRated from "./pages/TopRated";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -38,6 +41,9 @@ const App = () => {
           }
         />
         <Route path="/kids-wear" element={<KidsWear />} />
+        <Route path="/mens-wear" element={<MensWear />} />
+        <Route path="/womens-wear" element={<WomensWear />} />
+        <Route path="/top-rated" element={<TopRated />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
