@@ -110,9 +110,12 @@ const Cart = () => {
               <div className="mb-4 text-2xl font-extrabold">
                 Total: <span className="text-primary">Rs. {total}</span>
               </div>
-              <button className="px-10 py-3 text-lg font-bold text-white transition-all rounded-full shadow-lg bg-gradient-to-r from-primary to-secondary hover:scale-105">
+              <Link
+                to="/checkout"
+                className="px-10 py-3 text-lg font-bold text-white transition-all rounded-full shadow-lg bg-gradient-to-r from-primary to-secondary hover:scale-105"
+              >
                 Proceed to Checkout
-              </button>
+              </Link>
               <Link
                 to="/"
                 className="mt-4 underline transition-all text-primary hover:text-secondary"
