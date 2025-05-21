@@ -10,6 +10,7 @@ import MensWear from "./pages/MensWear";
 import WomensWear from "./pages/WomensWear";
 import TopRated from "./pages/TopRated";
 import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -57,6 +58,7 @@ const App = () => {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </Router>
   );
