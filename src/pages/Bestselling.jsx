@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import Subscribe from "../components/Subscribe/Subscribe";
+import Testimonials from "../components/Testimonials/Testimonials"; // Import Testimonials
 import { FaStar } from "react-icons/fa6";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -78,26 +79,6 @@ const bestsellingProducts = [
 ];
 
 const PRODUCTS_PER_PAGE = 9;
-
-// Sample testimonials
-const testimonials = [
-  {
-    name: "Nimesha Perera",
-    comment:
-      "Absolutely love the quality and fast delivery. Highly recommended!",
-    rating: 5,
-  },
-  {
-    name: "Kasun Silva",
-    comment: "Great customer service and trendy styles. Will shop again!",
-    rating: 4,
-  },
-  {
-    name: "Ishara Fernando",
-    comment: "My kids love their new clothes. Thank you EXORA!",
-    rating: 5,
-  },
-];
 
 const Bestselling = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -228,34 +209,10 @@ const Bestselling = () => {
           ))}
         </div>
       </div>
-      {/* Testimonials Section */}
-      <section className="py-16 bg-gradient-to-r from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-        <div className="container mx-auto">
-          <h2 className="mb-8 text-3xl font-bold text-center text-primary">
-            What Our Customers Say
-          </h2>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {testimonials.map((t, idx) => (
-              <div
-                key={idx}
-                className="p-6 bg-white shadow-lg rounded-xl dark:bg-gray-800"
-                data-aos="fade-up"
-                data-aos-delay={idx * 100}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  {[...Array(t.rating)].map((_, i) => (
-                    <FaStar key={i} className="text-yellow-400" />
-                  ))}
-                </div>
-                <p className="mb-4 text-gray-700 dark:text-gray-300">
-                  "{t.comment}"
-                </p>
-                <div className="font-semibold text-primary">{t.name}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Testimonials Section (like TopRated) */}
+      <div data-aos="zoom-in">
+        <Testimonials />
+      </div>
       {/* Subscribe Section */}
       <div data-aos="fade-up" data-aos-delay="200">
         <Subscribe />

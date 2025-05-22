@@ -20,7 +20,7 @@ const Menu = [
 
 const DropdownLinks = [
   { id: 1, name: "All Products", link: "/all-products" },
-  { id: 2, name: "Best Selling", link: "/#" },
+  { id: 2, name: "Best Selling", link: "/best-selling" },
   { id: 3, name: "Top Rated", link: "/top-rated" },
 ];
 
@@ -193,8 +193,8 @@ const Navbar = ({ handleOrderPopup }) => {
           ))}
           {/* Simple Dropdown and Links */}
           <li className="relative cursor-pointer group">
-            <a href="#" className="flex items-center gap-[2px] py-2">
-              Trending Products
+            <a className="flex items-center gap-[2px] py-2">
+              All Products
               <span>
                 <FaCaretDown className="transition-all duration-200 group-hover:rotate-180" />
               </span>
