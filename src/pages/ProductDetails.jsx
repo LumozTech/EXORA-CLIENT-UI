@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { FaHeart, FaRegHeart, FaStar } from "react-icons/fa";
@@ -41,7 +41,11 @@ const sampleProducts = [
 
 const ProductDetails = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
   const { id } = useParams();
-  const product = sampleProducts.find((p) => p.id === Number(id));
+  const location = useLocation();
+
+  // Use product from navigation state if available, else fallback to sampleProducts
+  const product =
+    location.state?.product || sampleProducts.find((p) => p.id === Number(id));
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(product?.sizes[0] || "");
   const [wishlist, setWishlist] = useState(false);
@@ -61,6 +65,11 @@ const ProductDetails = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
       delay: 100,
     });
     AOS.refresh();
+  }, []);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   if (!product) {
@@ -147,6 +156,7 @@ const ProductDetails = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
                 {product.sizes.map((size) => (
                   <button
                     key={size}
+                    // Only update selectedSize, do not remove or hide any size
                     onClick={() => setSelectedSize(size)}
                     className={`px-4 py-2 rounded border transition-all duration-200 ${
                       selectedSize === size
@@ -158,6 +168,10 @@ const ProductDetails = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
                     {size}
                   </button>
                 ))}
+              </div>
+              {/* Show selected size below */}
+              <div className="mt-2 font-semibold text-primary">
+                Selected Size: <span className="ml-1">{selectedSize}</span>
               </div>
             </div>
             {/* Action Buttons */}

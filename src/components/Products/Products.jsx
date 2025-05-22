@@ -50,7 +50,7 @@ const ProductsData = [
 
 const Products = () => {
   return (
-    <div className="mt-14 mb-12">
+    <div className="mb-12 mt-14">
       <div className="container">
         {/* Header section */}
         <div className="text-center mb-10 max-w-[600px] mx-auto">
@@ -67,7 +67,7 @@ const Products = () => {
         </div>
         {/* Body section */}
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center gap-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center">
             {/* card section */}
             {ProductsData.map((data) => (
               <div
@@ -94,7 +94,7 @@ const Products = () => {
           </div>
           {/* view all button */}
           <div className="flex justify-center">
-            <button className="text-center mt-10 cursor-pointer bg-primary text-white py-1 px-5 rounded-md">
+            <button className="px-5 py-1 mt-10 text-center text-white rounded-md cursor-pointer bg-primary">
               View All Button
             </button>
           </div>
