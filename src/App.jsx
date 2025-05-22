@@ -16,6 +16,7 @@ import MyOrders from "./pages/MyOrders";
 import Wishlist from "./pages/Wishlist";
 import AllProduct from "./pages/AllProduct";
 import Bestselling from "./pages/Bestselling";
+import Profile from "./pages/Profile";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -69,6 +70,7 @@ const App = () => {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/all-products" element={<AllProduct />} />
         <Route path="/best-selling" element={<Bestselling />} />
+        <Route path="/profile/edit" element={<Profile />} />
       </Routes>
     </Router>
   );

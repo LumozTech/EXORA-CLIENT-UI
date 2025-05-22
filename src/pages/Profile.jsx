@@ -1,97 +1,182 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import Banner from "../assets/website/orange-pattern.jpg";
+import Logo from "../assets/women/women4.jpg";
 import {
-  FaRegUser,
-  FaRegHeart,
-  FaCartShopping,
-  FaBoxOpen,
-  FaEdit,
+  FaUserEdit,
+  FaSave,
+  FaTimes,
+  FaGoogle,
+  FaFacebookF,
 } from "react-icons/fa";
-import AOS from "aos";
-import "aos/dist/aos.css";
 
-// Mock user data (replace with real user data from context or API)
-const user = {
-  name: "Jane Doe",
-  email: "jane.doe@email.com",
-  profile: "https://randomuser.me/api/portraits/women/44.jpg",
-  joined: "2023-01-15",
+const initialProfile = {
+  email: "nimesha@gmail.com",
+  firstName: "Nimesha",
+  lastName: "Perera",
+  password: "********",
+  profilePic: Logo,
 };
 
 const Profile = () => {
-  const navigate = useNavigate();
+  const [profile, setProfile] = useState(initialProfile);
+  const [editMode, setEditMode] = useState(false);
+  const [form, setForm] = useState(profile);
 
-  useEffect(() => {
-    AOS.init({ duration: 700, once: true });
-  }, []);
+  const handleEdit = () => {
+    setEditMode(true);
+    setForm(profile);
+  };
+
+  const handleCancel = () => {
+    setEditMode(false);
+    setForm(profile);
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    setProfile(form);
+    setEditMode(false);
+  };
 
   return (
-    <div>
-      <div className="flex flex-col items-center min-h-screen px-4 py-10 bg-gradient-to-br from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-        <div
-          className="relative flex flex-col items-center w-full max-w-2xl p-8 bg-white shadow-2xl dark:bg-gray-900 rounded-2xl"
-          data-aos="fade-up"
-        >
-          <div className="absolute top-4 right-4">
-            <button
-              className="flex items-center gap-2 px-3 py-1 text-sm font-semibold transition-all border rounded-full text-primary border-primary hover:bg-primary/10"
-              onClick={() => navigate("/profile/edit")}
-            >
-              <FaEdit /> Edit Profile
-            </button>
-          </div>
+    <div
+      className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900"
+      style={{
+        backgroundImage: `url(${Banner})`,
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
+      <div className="flex flex-col items-center w-full max-w-2xl p-8 mx-auto shadow-2xl rounded-3xl bg-white/95 dark:bg-gray-900/95 md:p-12">
+        {/* Profile Avatar */}
+        <div className="relative flex flex-col items-center mb-8">
           <img
-            src={user.profile}
+            src={profile.profilePic}
             alt="Profile"
-            className="mb-4 transition-all duration-300 border-4 rounded-full shadow-lg w-28 h-28 border-primary hover:scale-105"
-            data-aos="zoom-in"
+            className="object-cover w-32 h-32 border-4 rounded-full shadow-lg border-primary"
           />
-          <h2 className="mb-1 text-2xl font-bold text-primary">{user.name}</h2>
-          <p className="mb-2 text-gray-600 dark:text-gray-300">{user.email}</p>
-          <span className="mb-6 text-xs text-gray-400">
-            Joined on {new Date(user.joined).toLocaleDateString()}
-          </span>
-          <div className="grid w-full grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-            <div
-              className="flex flex-col items-center p-6 transition-all shadow cursor-pointer bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl hover:scale-105"
-              data-aos="fade-right"
-              onClick={() => navigate("/orders")}
+          <div className="mt-4 text-2xl font-bold text-center text-primary">
+            {profile.firstName} {profile.lastName}
+          </div>
+          <div className="text-center text-gray-500 dark:text-gray-300">
+            {profile.email}
+          </div>
+          {!editMode && (
+            <button
+              onClick={handleEdit}
+              className="absolute top-0 right-0 flex items-center gap-2 px-4 py-2 mt-2 text-white transition-all rounded-full shadow bg-primary hover:bg-secondary"
+              style={{ fontSize: 16 }}
             >
-              <FaBoxOpen className="mb-2 text-3xl text-primary" />
-              <span className="text-lg font-semibold">My Orders</span>
-              <span className="text-xs text-gray-500">
-                View your order history
-              </span>
+              <FaUserEdit /> Edit
+            </button>
+          )}
+        </div>
+        {/* Profile Form */}
+        <form
+          onSubmit={handleSave}
+          className="w-full max-w-md mx-auto space-y-6"
+          autoComplete="off"
+        >
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-primary">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800"
+              value={editMode ? form.email : profile.email}
+              onChange={handleChange}
+              disabled={!editMode}
+              required
+            />
+          </div>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block mb-1 text-sm font-semibold text-primary">
+                First Name
+              </label>
+              <input
+                type="text"
+                name="firstName"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800"
+                value={editMode ? form.firstName : profile.firstName}
+                onChange={handleChange}
+                disabled={!editMode}
+                required
+              />
             </div>
-            <div
-              className="flex flex-col items-center p-6 transition-all shadow cursor-pointer bg-gradient-to-r from-pink-100/40 to-pink-200/40 dark:from-gray-800 dark:to-gray-900 rounded-xl hover:scale-105"
-              data-aos="fade-left"
-              onClick={() => navigate("/wishlist")}
-            >
-              <FaRegHeart className="mb-2 text-3xl text-pink-500" />
-              <span className="text-lg font-semibold">Wishlist</span>
-              <span className="text-xs text-gray-500">Your saved products</span>
-            </div>
-            <div
-              className="flex flex-col items-center p-6 transition-all shadow cursor-pointer bg-gradient-to-r from-blue-100/40 to-blue-200/40 dark:from-gray-800 dark:to-gray-900 rounded-xl hover:scale-105"
-              data-aos="fade-right"
-              onClick={() => navigate("/cart")}
-            >
-              <FaCartShopping className="mb-2 text-3xl text-blue-500" />
-              <span className="text-lg font-semibold">Cart</span>
-              <span className="text-xs text-gray-500">Items ready to buy</span>
-            </div>
-            <div
-              className="flex flex-col items-center p-6 transition-all shadow cursor-pointer bg-gradient-to-r from-purple-100/40 to-purple-200/40 dark:from-gray-800 dark:to-gray-900 rounded-xl hover:scale-105"
-              data-aos="fade-left"
-              onClick={() => navigate("/profile")}
-            >
-              <FaRegUser className="mb-2 text-3xl text-purple-500" />
-              <span className="text-lg font-semibold">Account</span>
-              <span className="text-xs text-gray-500">Manage your details</span>
+            <div className="flex-1">
+              <label className="block mb-1 text-sm font-semibold text-primary">
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800"
+                value={editMode ? form.lastName : profile.lastName}
+                onChange={handleChange}
+                disabled={!editMode}
+                required
+              />
             </div>
           </div>
-        </div>
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-primary">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800"
+              value={editMode ? form.password : profile.password}
+              onChange={handleChange}
+              disabled={!editMode}
+              required
+              autoComplete="new-password"
+            />
+          </div>
+          {editMode && (
+            <div>
+              <label className="block mb-1 text-sm font-semibold text-primary">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800"
+                value={form.confirmPassword || ""}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+              />
+            </div>
+          )}
+          {editMode && (
+            <div className="flex gap-3 mt-4">
+              <button
+                type="submit"
+                className="flex items-center justify-center flex-1 gap-2 py-2 font-semibold text-white transition-all rounded-lg bg-primary hover:bg-secondary"
+              >
+                <FaSave /> Save
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="flex items-center justify-center flex-1 gap-2 py-2 font-semibold text-white transition-all bg-gray-400 rounded-lg hover:bg-red-500"
+              >
+                <FaTimes /> Cancel
+              </button>
+            </div>
+          )}
+        </form>
+        {/* Social Connections */}
+        {/* Removed Google and Facebook buttons */}
       </div>
     </div>
   );
