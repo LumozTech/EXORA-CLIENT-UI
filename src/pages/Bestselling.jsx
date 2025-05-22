@@ -7,9 +7,8 @@ import { FaStar } from "react-icons/fa6";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-// Sample data for all products (combine mens, womens, kids)
-const allProducts = [
-  // Mens
+// Sample bestselling products (replace with real API data)
+const bestsellingProducts = [
   {
     id: 1,
     name: "Classic Polo Shirt",
@@ -24,20 +23,6 @@ const allProducts = [
     aosDelay: "0",
   },
   {
-    id: 2,
-    name: "Denim Jeans",
-    price: "Rs. 2,800",
-    images: [
-      "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
-    ],
-    description: "Comfortable denim jeans.",
-    category: "Men",
-    rating: 4.6,
-    color: "Blue",
-    aosDelay: "100",
-  },
-  // Womens
-  {
     id: 3,
     name: "Floral Summer Dress",
     price: "Rs. 3,200",
@@ -50,20 +35,6 @@ const allProducts = [
     color: "Pink",
     aosDelay: "200",
   },
-  {
-    id: 4,
-    name: "Elegant Evening Gown",
-    price: "Rs. 7,500",
-    images: [
-      "https://images.pexels.com/photos/1488465/pexels-photo-1488465.jpeg",
-    ],
-    description: "Elegant gown for special occasions.",
-    category: "Women",
-    rating: 5.0,
-    color: "Purple",
-    aosDelay: "300",
-  },
-  // Kids
   {
     id: 5,
     name: "Kids Cartoon Tee",
@@ -78,24 +49,57 @@ const allProducts = [
     aosDelay: "400",
   },
   {
-    id: 6,
-    name: "Kids Shorts",
-    price: "Rs. 900",
+    id: 7,
+    name: "Men's Slim Fit Shirt",
+    price: "Rs. 2,200",
     images: [
-      "https://images.pexels.com/photos/936076/pexels-photo-936076.jpeg",
+      "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
     ],
-    description: "Lightweight shorts for active kids.",
-    category: "Kids",
-    rating: 4.5,
-    color: "Yellow",
-    aosDelay: "500",
+    description: "Trendy slim fit shirt for men.",
+    category: "Men",
+    rating: 4.9,
+    color: "Red",
+    aosDelay: "600",
   },
-  // Add more products as needed...
+  {
+    id: 8,
+    name: "Elegant Evening Gown",
+    price: "Rs. 7,500",
+    images: [
+      "https://images.pexels.com/photos/1488465/pexels-photo-1488465.jpeg",
+    ],
+    description: "Elegant gown for special occasions.",
+    category: "Women",
+    rating: 5.0,
+    color: "Purple",
+    aosDelay: "800",
+  },
+  // Add more bestselling products as needed...
 ];
 
-const PRODUCTS_PER_PAGE = 15;
+const PRODUCTS_PER_PAGE = 9;
 
-const AllProduct = () => {
+// Sample testimonials
+const testimonials = [
+  {
+    name: "Nimesha Perera",
+    comment:
+      "Absolutely love the quality and fast delivery. Highly recommended!",
+    rating: 5,
+  },
+  {
+    name: "Kasun Silva",
+    comment: "Great customer service and trendy styles. Will shop again!",
+    rating: 4,
+  },
+  {
+    name: "Ishara Fernando",
+    comment: "My kids love their new clothes. Thank you EXORA!",
+    rating: 5,
+  },
+];
+
+const Bestselling = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
@@ -113,8 +117,8 @@ const AllProduct = () => {
   // Filter logic
   const filteredProducts =
     filter === "All"
-      ? allProducts
-      : allProducts.filter((p) => p.category === filter);
+      ? bestsellingProducts
+      : bestsellingProducts.filter((p) => p.category === filter);
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const startIdx = (currentPage - 1) * PRODUCTS_PER_PAGE;
@@ -133,22 +137,21 @@ const AllProduct = () => {
       <Navbar />
       {/* Hero Section */}
       <section
-        className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-blue-100 via-white to-pink-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
+        className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-yellow-100 via-white to-pink-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
         data-aos="fade-down"
       >
         <h1
           className="mb-4 text-4xl font-bold md:text-5xl text-primary"
           data-aos="fade-up"
         >
-          All Products
+          Bestselling Products
         </h1>
         <p
           className="max-w-xl text-lg text-center text-gray-700 dark:text-gray-300"
           data-aos="fade-up"
           data-aos-delay="100"
         >
-          Browse our complete collection for Men, Women, and Kids. Find your
-          style!
+          Discover our most popular picks loved by customers!
         </p>
       </section>
       {/* Filter Buttons */}
@@ -179,10 +182,6 @@ const AllProduct = () => {
               data-aos-delay={data.aosDelay}
               key={data.id}
               className="space-y-3"
-              onClick={() =>
-                navigate(`/product/${data.id}`, { state: { product: data } })
-              }
-              style={{ cursor: "pointer" }}
             >
               <img
                 src={data.images[0]}
@@ -236,25 +235,7 @@ const AllProduct = () => {
             What Our Customers Say
           </h2>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {[
-              {
-                name: "Nimesha Perera",
-                comment:
-                  "Absolutely love the quality and fast delivery. Highly recommended!",
-                rating: 5,
-              },
-              {
-                name: "Kasun Silva",
-                comment:
-                  "Great customer service and trendy styles. Will shop again!",
-                rating: 4,
-              },
-              {
-                name: "Ishara Fernando",
-                comment: "My kids love their new clothes. Thank you EXORA!",
-                rating: 5,
-              },
-            ].map((t, idx) => (
+            {testimonials.map((t, idx) => (
               <div
                 key={idx}
                 className="p-6 bg-white shadow-lg rounded-xl dark:bg-gray-800"
@@ -284,4 +265,4 @@ const AllProduct = () => {
   );
 };
 
-export default AllProduct;
+export default Bestselling;

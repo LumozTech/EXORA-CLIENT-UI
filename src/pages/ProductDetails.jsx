@@ -156,6 +156,7 @@ const ProductDetails = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
                 {product.sizes.map((size) => (
                   <button
                     key={size}
+                    // Only update selectedSize, do not remove or hide any size
                     onClick={() => setSelectedSize(size)}
                     className={`px-4 py-2 rounded border transition-all duration-200 ${
                       selectedSize === size
@@ -167,6 +168,10 @@ const ProductDetails = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
                     {size}
                   </button>
                 ))}
+              </div>
+              {/* Show selected size below */}
+              <div className="mt-2 font-semibold text-primary">
+                Selected Size: <span className="ml-1">{selectedSize}</span>
               </div>
             </div>
             {/* Action Buttons */}

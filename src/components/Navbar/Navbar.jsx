@@ -19,9 +19,9 @@ const Menu = [
 ];
 
 const DropdownLinks = [
-  { id: 1, name: "Trending Products", link: "/#" },
+  { id: 1, name: "All Products", link: "/all-products" },
   { id: 2, name: "Best Selling", link: "/#" },
-  { id: 3, name: "Top Rated", link: "/#" },
+  { id: 3, name: "Top Rated", link: "/top-rated" },
 ];
 
 // Simulate authentication state and user info
