@@ -10,6 +10,7 @@ import {
   FaSignOutAlt,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
+  FaTruck,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo.png";
@@ -18,6 +19,7 @@ const menuItems = [
   { name: "Dashboard", icon: <FaHome />, link: "/admin/dashboard" },
   { name: "Users", icon: <FaUser />, link: "/admin/users" },
   { name: "Products", icon: <FaBox />, link: "/admin/products" },
+  { name: "Orders", icon: <FaTruck />, link: "/admin/orders" },
   { name: "Reviews", icon: <FaStar />, link: "/admin/reviews" },
   { name: "Settings", icon: <FaCog />, link: "/admin/settings" },
 ];
