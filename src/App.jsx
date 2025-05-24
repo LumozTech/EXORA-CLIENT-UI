@@ -17,6 +17,14 @@ import Wishlist from "./pages/Wishlist";
 import AllProduct from "./pages/AllProduct";
 import Bestselling from "./pages/Bestselling";
 import Profile from "./pages/Profile";
+import AdminDashboard from "../src/pages/admin/Dashboard";
+import Users from "./pages/admin/Users";
+import AddUser from "./pages/admin/AddUser";
+import Products from "./pages/admin/Products";
+import AddProduct from "./pages/admin/AddProduct";
+import Reviews from "./pages/admin/Reviews";
+import Orders from "./pages/admin/Orders";
+import Settings from "./pages/admin/Settings";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -71,6 +79,14 @@ const App = () => {
         <Route path="/all-products" element={<AllProduct />} />
         <Route path="/best-selling" element={<Bestselling />} />
         <Route path="/profile/edit" element={<Profile />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<Users />} />
+        <Route path="/admin/add-user" element={<AddUser />} />
+        <Route path="/admin/products" element={<Products />} />
+        <Route path="/admin/add-product" element={<AddProduct />} />
+        <Route path="admin/reviews" element={<Reviews />} />
+        <Route path="/admin/orders" element={<Orders />} />
+        <Route path="/admin/settings" element={<Settings />} />
       </Routes>
     </Router>
   );
