@@ -3,72 +3,103 @@ import { useNavigate } from "react-router-dom";
 import SlideBar from "../../components/admin/SlideBar";
 import AdminNavbar from "../../components/admin/Navbar";
 import { FaUserCircle, FaCamera, FaArrowLeft } from "react-icons/fa";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// import uploadMediaToSupabase from "../../utils/mediaUpload";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
 const CARD_BORDER = "#CBD5E0";
 
-const AddUser = ({ onUserAdd }) => {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    city: "",
-    district: "",
-    country: "",
-    joined: new Date().toISOString().slice(0, 10),
-    status: "Active",
-    avatar: "",
-    role: "customer",
-  });
-
+const AddUser = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [type, setType] = useState("customer");
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // Handle profile photo upload
-  const handleAvatarChange = (e) => {
+  const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm((prev) => ({ ...prev, avatar: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      setImageFile(file);
     }
   };
 
-  const handleAvatarClick = (e) => {
+  const handleProfilePicClick = (e) => {
     e.preventDefault();
     fileInputRef.current.click();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2000);
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      city: "",
-      district: "",
-      country: "",
-      joined: new Date().toISOString().slice(0, 10),
-      status: "Active",
-      avatar: "",
-      role: "customer",
-    });
-    // Optionally, navigate to users page after adding
-    setTimeout(() => navigate("/admin/users"), 1200);
-  };
-
   const handleBack = () => {
     navigate("/admin/users");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+
+    let imgUrl = "";
+    // If you want to upload to Supabase, uncomment and use the below:
+    // if (imageFile) {
+    //   try {
+    //     imgUrl = await uploadMediaToSupabase(imageFile);
+    //   } catch (uploadError) {
+    //     toast.error("Image upload failed.");
+    //     return;
+    //   }
+    // }
+
+    const user = {
+      firstName,
+      lastName,
+      email,
+      password,
+      type,
+      isBlocked,
+      profilePic: imgUrl, // Will be "" unless you use upload
+    };
+
+    const token = localStorage.getItem("token");
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/users", user, {
+        headers: {
+          Authorization: "Bearer " + token, // token must be for an admin user
+        },
+      });
+      toast.success("User added successfully!");
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setImageFile(null);
+      setPassword("");
+      setConfirmPassword("");
+      setType("customer");
+      setIsBlocked(false);
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        navigate("/admin/users");
+      }, 1200);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to add user: " + error.message
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,6 +109,7 @@ const AddUser = ({ onUserAdd }) => {
         background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
       }}
     >
+      <ToastContainer position="top-right" />
       <div className="mt-6 ml-6">
         <SlideBar />
       </div>
@@ -85,7 +117,7 @@ const AddUser = ({ onUserAdd }) => {
         <div className="mt-10 ml-6 mr-6">
           <AdminNavbar pageTitle="Add User" />
           <div
-            className="max-w-3xl p-8 mx-auto mt-8 mb-10 border shadow-md rounded-2xl"
+            className="w-full p-8 mx-auto mt-8 mb-10 border shadow-md rounded-2xl" // <-- full width
             style={{
               background: CARD_BG,
               borderColor: CARD_BORDER,
@@ -109,12 +141,12 @@ const AddUser = ({ onUserAdd }) => {
               onSubmit={handleSubmit}
               className="grid grid-cols-1 gap-6 md:grid-cols-2"
             >
-              {/* Left column: Profile photo */}
+              {/* Left column: Profile photo and names */}
               <div className="flex flex-col items-center gap-4">
                 <div className="relative">
-                  {form.avatar ? (
+                  {imageFile ? (
                     <img
-                      src={form.avatar}
+                      src={URL.createObjectURL(imageFile)}
                       alt="Avatar Preview"
                       className="object-cover w-24 h-24 border border-gray-300 rounded-full"
                     />
@@ -122,7 +154,7 @@ const AddUser = ({ onUserAdd }) => {
                     <FaUserCircle className="w-24 h-24 text-primary" />
                   )}
                   <button
-                    onClick={handleAvatarClick}
+                    onClick={handleProfilePicClick}
                     className="absolute p-2 bg-white rounded-full shadow bottom-1 right-1 hover:bg-gray-100"
                     type="button"
                     title="Upload Photo"
@@ -133,20 +165,32 @@ const AddUser = ({ onUserAdd }) => {
                     type="file"
                     accept="image/*"
                     ref={fileInputRef}
-                    onChange={handleAvatarChange}
+                    onChange={handleProfilePicChange}
                     className="hidden"
                   />
                 </div>
                 <div className="w-full">
-                  <label className="font-semibold">Full Name</label>
+                  <label className="font-semibold">First Name</label>
                   <input
                     type="text"
-                    name="name"
+                    name="firstName"
                     required
-                    placeholder="Full Name"
+                    placeholder="First Name"
                     className="w-full px-4 py-2 border rounded-lg"
-                    value={form.name}
-                    onChange={handleChange}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+                <div className="w-full">
+                  <label className="font-semibold">Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    required
+                    placeholder="Last Name"
+                    className="w-full px-4 py-2 border rounded-lg"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                   />
                 </div>
                 <div className="w-full">
@@ -157,90 +201,65 @@ const AddUser = ({ onUserAdd }) => {
                     required
                     placeholder="Email"
                     className="w-full px-4 py-2 border rounded-lg"
-                    value={form.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="font-semibold">Phone</label>
-                  <input
-                    type="text"
-                    name="phone"
-                    required
-                    placeholder="Phone (e.g. 0771234567)"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={form.phone}
-                    onChange={handleChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
               </div>
-              {/* Right column: Address, role, status */}
+              {/* Right column: Password, role, status */}
               <div className="flex flex-col gap-4">
                 <div>
-                  <label className="font-semibold">City</label>
+                  <label className="font-semibold">Password</label>
                   <input
-                    type="text"
-                    name="city"
+                    type="password"
+                    name="password"
                     required
-                    placeholder="City"
+                    placeholder="Password"
                     className="w-full px-4 py-2 border rounded-lg"
-                    value={form.city}
-                    onChange={handleChange}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="font-semibold">District</label>
+                  <label className="font-semibold">Confirm Password</label>
                   <input
-                    type="text"
-                    name="district"
+                    type="password"
+                    name="confirmPassword"
                     required
-                    placeholder="District"
+                    placeholder="Confirm Password"
                     className="w-full px-4 py-2 border rounded-lg"
-                    value={form.district}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold">Country</label>
-                  <input
-                    type="text"
-                    name="country"
-                    required
-                    placeholder="Country"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={form.country}
-                    onChange={handleChange}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                 </div>
                 <div>
                   <label className="font-semibold">Role</label>
                   <select
-                    name="role"
-                    className="w-full px-2 py-2 border rounded-lg"
-                    value={form.role}
-                    onChange={handleChange}
+                    className="w-full px-4 py-2 border rounded-lg"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
                   >
                     <option value="customer">Customer</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
-                <div>
-                  <label className="font-semibold">Status</label>
-                  <select
-                    name="status"
-                    className="w-full px-2 py-2 border rounded-lg"
-                    value={form.status}
-                    onChange={handleChange}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isBlocked}
+                    onChange={(e) => setIsBlocked(e.target.checked)}
+                    className="mr-2"
+                  />
+                  <label className="font-medium text-gray-700">Blocked</label>
                 </div>
                 <button
                   type="submit"
-                  className="mt-2 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 rounded-lg transition w-full"
+                  className={`mt-2 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 rounded-lg transition w-full ${
+                    loading ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
+                  disabled={loading}
                 >
-                  Add User
+                  {loading ? "Adding..." : "Add User"}
                 </button>
                 {submitted && (
                   <div className="mt-2 font-semibold text-center text-green-600">
