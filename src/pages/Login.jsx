@@ -1,23 +1,56 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Banner from "../assets/website/orange-pattern.jpg";
 import Logo from "../assets/women/women4.jpg";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
+    setLoading(true);
+    try {
+      const res = await axios.post("http://localhost:5000/api/users/login", {
+        email: form.email,
+        password: form.password,
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || "Login successful!", {
+          onClose: () => navigate("/"),
+          autoClose: 1200,
+        });
+        setForm({ email: "", password: "" });
+      } else {
+        toast.error(res.data.message || "Login failed.");
+      }
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
-    alert("Google login clicked");
+    toast.info("Google login clicked");
   };
 
   const handleFacebookLogin = () => {
-    alert("Facebook login clicked");
+    toast.info("Facebook login clicked");
   };
 
   return (
@@ -30,6 +63,7 @@ const Login = () => {
         backgroundSize: "cover",
       }}
     >
+      <ToastContainer position="top-right" />
       <div className="flex w-full max-w-4xl overflow-hidden rounded-lg shadow-lg bg-white/90 dark:bg-gray-900/90">
         {/* Left Side - Image & Logo */}
         <div className="flex-col items-center justify-center hidden py-12 md:flex md:w-1/2 bg-white/0">
@@ -49,9 +83,10 @@ const Login = () => {
               <label className="block mb-1 text-sm font-medium">Email</label>
               <input
                 type="email"
+                name="email"
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-primary dark:bg-gray-800"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={handleChange}
                 required
                 autoComplete="username"
               />
@@ -60,18 +95,43 @@ const Login = () => {
               <label className="block mb-1 text-sm font-medium">Password</label>
               <input
                 type="password"
+                name="password"
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-primary dark:bg-gray-800"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={form.password}
+                onChange={handleChange}
                 required
                 autoComplete="current-password"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary"
+              className={`w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary flex items-center justify-center ${
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Login
+              {loading ? (
+                <svg
+                  className="w-5 h-5 mr-2 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  ></path>
+                </svg>
+              ) : null}
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
           <div className="flex items-center my-6">
