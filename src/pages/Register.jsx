@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import axios from "axios";
 import Banner from "../assets/website/orange-pattern.jpg";
 import Logo from "../assets/women/women4.jpg";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaGoogle, FaFacebookF, FaCamera, FaTimes } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -10,23 +13,74 @@ const Register = () => {
     lastName: "",
     password: "",
     confirmPassword: "",
+    profilePic: "",
   });
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm((prev) => ({ ...prev, profilePic: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveProfilePic = () => {
+    setForm((prev) => ({ ...prev, profilePic: "" }));
+  };
+
+  const handleProfilePicClick = (e) => {
     e.preventDefault();
-    // Handle registration logic here
+    fileInputRef.current.click();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/users/", {
+        email: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        password: form.password,
+        profilePic: form.profilePic,
+      });
+      toast.success("Registration successful!");
+      setForm({
+        email: "",
+        firstName: "",
+        lastName: "",
+        password: "",
+        confirmPassword: "",
+        profilePic: "",
+      });
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Registration failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleRegister = () => {
-    alert("Google register clicked");
+    toast.info("Google register clicked");
   };
 
   const handleFacebookRegister = () => {
-    alert("Facebook register clicked");
+    toast.info("Facebook register clicked");
   };
 
   return (
@@ -39,6 +93,7 @@ const Register = () => {
         backgroundSize: "cover",
       }}
     >
+      <ToastContainer position="top-right" />
       <div className="flex w-full max-w-4xl overflow-hidden rounded-lg shadow-lg bg-white/90 dark:bg-gray-900/90">
         {/* Left Side - Image & Logo */}
         <div className="flex-col items-center justify-center hidden py-12 md:flex md:w-1/2 bg-white/0">
@@ -53,6 +108,48 @@ const Register = () => {
           <h2 className="mb-6 text-3xl font-bold text-center text-primary">
             Register
           </h2>
+          {/* Profile Picture Section */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="relative">
+              {form.profilePic ? (
+                <>
+                  <img
+                    src={form.profilePic}
+                    alt="Profile"
+                    className="object-cover w-20 h-20 border-2 rounded-full border-primary"
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-0 right-0 p-1 bg-white rounded-full shadow hover:text-red-600"
+                    onClick={handleRemoveProfilePic}
+                    title="Remove"
+                  >
+                    <FaTimes />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleProfilePicClick}
+                  type="button"
+                  className="flex flex-col items-center justify-center w-20 h-20 border-2 border-dashed border-primary rounded-full bg-white hover:bg-[#E0F2F1] transition"
+                  title="Add Profile Picture"
+                >
+                  <FaCamera className="text-2xl text-primary" />
+                  <span className="mt-1 text-xs text-primary">Add Photo</span>
+                </button>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleProfilePicChange}
+                className="hidden"
+              />
+            </div>
+            <span className="mt-2 text-xs text-gray-500">
+              Profile Picture (optional)
+            </span>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block mb-1 text-sm font-medium">Email</label>
@@ -120,9 +217,33 @@ const Register = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary"
+              className={`w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary flex items-center justify-center ${
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Register
+              {loading ? (
+                <svg
+                  className="w-5 h-5 mr-2 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  ></path>
+                </svg>
+              ) : null}
+              {loading ? "Registering..." : "Register"}
             </button>
           </form>
           <div className="flex items-center my-6">
