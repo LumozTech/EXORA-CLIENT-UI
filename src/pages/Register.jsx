@@ -1,7 +1,10 @@
 import React, { useState, useRef } from "react";
+import axios from "axios";
 import Banner from "../assets/website/orange-pattern.jpg";
 import Logo from "../assets/women/women4.jpg";
 import { FaGoogle, FaFacebookF, FaCamera, FaTimes } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -12,6 +15,7 @@ const Register = () => {
     confirmPassword: "",
     profilePic: "",
   });
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
@@ -38,17 +42,45 @@ const Register = () => {
     fileInputRef.current.click();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/users/", {
+        email: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        password: form.password,
+        profilePic: form.profilePic,
+      });
+      toast.success("Registration successful!");
+      setForm({
+        email: "",
+        firstName: "",
+        lastName: "",
+        password: "",
+        confirmPassword: "",
+        profilePic: "",
+      });
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Registration failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleRegister = () => {
-    alert("Google register clicked");
+    toast.info("Google register clicked");
   };
 
   const handleFacebookRegister = () => {
-    alert("Facebook register clicked");
+    toast.info("Facebook register clicked");
   };
 
   return (
@@ -61,6 +93,7 @@ const Register = () => {
         backgroundSize: "cover",
       }}
     >
+      <ToastContainer position="top-right" />
       <div className="flex w-full max-w-4xl overflow-hidden rounded-lg shadow-lg bg-white/90 dark:bg-gray-900/90">
         {/* Left Side - Image & Logo */}
         <div className="flex-col items-center justify-center hidden py-12 md:flex md:w-1/2 bg-white/0">
@@ -184,9 +217,33 @@ const Register = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary"
+              className={`w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary flex items-center justify-center ${
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Register
+              {loading ? (
+                <svg
+                  className="w-5 h-5 mr-2 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  ></path>
+                </svg>
+              ) : null}
+              {loading ? "Registering..." : "Register"}
             </button>
           </form>
           <div className="flex items-center my-6">
