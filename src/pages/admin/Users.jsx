@@ -17,7 +17,7 @@ const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
 const CARD_BORDER = "#CBD5E0";
 
-const USERS_PER_PAGE = 5;
+const USERS_PER_PAGE = 10;
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -151,7 +151,7 @@ const Users = () => {
               <table className="min-w-full text-left">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2">#</th>
+                    <th className="px-4 py-2">ID</th>
                     <th className="px-4 py-2">First Name</th>
                     <th className="px-4 py-2">Last Name</th>
                     <th className="px-4 py-2">Email</th>
