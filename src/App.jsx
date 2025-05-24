@@ -25,6 +25,8 @@ import AddProduct from "./pages/admin/AddProduct";
 import Reviews from "./pages/admin/Reviews";
 import Orders from "./pages/admin/Orders";
 import Settings from "./pages/admin/Settings";
+import AdminRoute from "./components/AdminRoute";
+import UserRoute from "./components/UserRoute";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -46,6 +48,9 @@ const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route
           path="/"
           element={
@@ -70,23 +75,114 @@ const App = () => {
             />
           }
         />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<ProceedToCheckout />} />
-        <Route path="/orders" element={<MyOrders />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/all-products" element={<AllProduct />} />
-        <Route path="/best-selling" element={<Bestselling />} />
-        <Route path="/profile/edit" element={<Profile />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<Users />} />
-        <Route path="/admin/add-user" element={<AddUser />} />
-        <Route path="/admin/products" element={<Products />} />
-        <Route path="/admin/add-product" element={<AddProduct />} />
-        <Route path="admin/reviews" element={<Reviews />} />
-        <Route path="/admin/orders" element={<Orders />} />
-        <Route path="/admin/settings" element={<Settings />} />
+
+        {/* User protected routes */}
+        <Route
+          path="/cart"
+          element={
+            <UserRoute>
+              <Cart />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <UserRoute>
+              <ProceedToCheckout />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <UserRoute>
+              <MyOrders />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <UserRoute>
+              <Wishlist />
+            </UserRoute>
+          }
+        />
+        <Route
+          path="/profile/edit"
+          element={
+            <UserRoute>
+              <Profile />
+            </UserRoute>
+          }
+        />
+
+        {/* Admin protected routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <Users />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/add-user"
+          element={
+            <AdminRoute>
+              <AddUser />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <Products />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/add-product"
+          element={
+            <AdminRoute>
+              <AddProduct />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/reviews"
+          element={
+            <AdminRoute>
+              <Reviews />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/orders"
+          element={
+            <AdminRoute>
+              <Orders />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/settings"
+          element={
+            <AdminRoute>
+              <Settings />
+            </AdminRoute>
+          }
+        />
       </Routes>
     </Router>
   );

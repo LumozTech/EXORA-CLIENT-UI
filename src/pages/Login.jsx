@@ -28,8 +28,18 @@ const Login = () => {
         password: form.password,
       });
       if (res.data.success) {
+        // Save token and user type if needed
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("role", res.data.user.type); // <-- use "role" instead of "userType"
+
         toast.success(res.data.message || "Login successful!", {
-          onClose: () => navigate("/"),
+          onClose: () => {
+            if (res.data.user.type === "admin") {
+              navigate("/admin/dashboard");
+            } else {
+              navigate("/");
+            }
+          },
           autoClose: 1200,
         });
         setForm({ email: "", password: "" });
