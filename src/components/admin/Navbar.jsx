@@ -6,16 +6,30 @@ import { FaUserCircle, FaChevronDown } from "react-icons/fa";
 const NAVBAR_BG = "#00796B";
 const NAVBAR_TEXT = "#F5F5F5";
 
-// Example user data (replace with real user info)
-const user = {
-  name: "Nimesha Perera",
-  email: "nimesha@gmail.com",
-  avatar: null, // If you have a user avatar, set the URL here
-};
-
 const AdminNavbar = ({ pageTitle = "Dashboard" }) => {
   // Dropdown state
   const [open, setOpen] = React.useState(false);
+
+  // Get user info from localStorage
+  const user = React.useMemo(() => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const u = JSON.parse(userData);
+        return {
+          name: `${u.firstName || ""} ${u.lastName || ""}`.trim(),
+          email: u.email || "",
+          avatar: u.profilePic || null,
+        };
+      }
+    } catch (e) {}
+    // fallback
+    return {
+      name: "Admin",
+      email: "admin@example.com",
+      avatar: null,
+    };
+  }, []);
 
   return (
     <nav
