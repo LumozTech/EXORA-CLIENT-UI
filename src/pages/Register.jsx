@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Banner from "../assets/website/orange-pattern.jpg";
 import Logo from "../assets/women/women4.jpg";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaGoogle, FaFacebookF, FaCamera, FaTimes } from "react-icons/fa";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -10,10 +10,32 @@ const Register = () => {
     lastName: "",
     password: "",
     confirmPassword: "",
+    profilePic: "",
   });
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm((prev) => ({ ...prev, profilePic: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveProfilePic = () => {
+    setForm((prev) => ({ ...prev, profilePic: "" }));
+  };
+
+  const handleProfilePicClick = (e) => {
+    e.preventDefault();
+    fileInputRef.current.click();
   };
 
   const handleSubmit = (e) => {
@@ -53,6 +75,48 @@ const Register = () => {
           <h2 className="mb-6 text-3xl font-bold text-center text-primary">
             Register
           </h2>
+          {/* Profile Picture Section */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="relative">
+              {form.profilePic ? (
+                <>
+                  <img
+                    src={form.profilePic}
+                    alt="Profile"
+                    className="object-cover w-20 h-20 border-2 rounded-full border-primary"
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-0 right-0 p-1 bg-white rounded-full shadow hover:text-red-600"
+                    onClick={handleRemoveProfilePic}
+                    title="Remove"
+                  >
+                    <FaTimes />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleProfilePicClick}
+                  type="button"
+                  className="flex flex-col items-center justify-center w-20 h-20 border-2 border-dashed border-primary rounded-full bg-white hover:bg-[#E0F2F1] transition"
+                  title="Add Profile Picture"
+                >
+                  <FaCamera className="text-2xl text-primary" />
+                  <span className="mt-1 text-xs text-primary">Add Photo</span>
+                </button>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleProfilePicChange}
+                className="hidden"
+              />
+            </div>
+            <span className="mt-2 text-xs text-gray-500">
+              Profile Picture (optional)
+            </span>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block mb-1 text-sm font-medium">Email</label>
