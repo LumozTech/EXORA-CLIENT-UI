@@ -3,6 +3,7 @@ import SlideBar from "../../components/admin/SlideBar";
 import AdminNavbar from "../../components/admin/Navbar";
 import { FaBoxOpen, FaCamera, FaArrowLeft, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -10,32 +11,42 @@ const CARD_BORDER = "#CBD5E0";
 
 const AddProduct = () => {
   const [form, setForm] = useState({
-    name: "",
-    sku: "",
+    productName: "",
+    altNames: "",
+    images: [],
     price: "",
+    lastPrice: "",
+    description: "",
     stock: "",
-    sold: "",
-    status: "Active",
-    images: [], // Array for up to 5 images
-    category: "Kids", // New field
-    bestSelling: false,
-    topRated: false,
+    soldCount: 0,
+    category: "kids",
+    isBestSelling: false,
+    isTopRated: false,
+    status: "active"
   });
+
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
-  // Handle multiple product image uploads (max 5)
+  const handleAltNamesChange = (e) => {
+    const names = e.target.value.split(',').map(name => name.trim());
+    setForm({ ...form, altNames: names });
+  };
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + form.images.length > 5) {
       alert("You can upload up to 5 images only.");
       return;
     }
+    
     const readers = files.map(
       (file) =>
         new Promise((resolve) => {
@@ -44,6 +55,7 @@ const AddProduct = () => {
           reader.readAsDataURL(file);
         })
     );
+    
     Promise.all(readers).then((images) => {
       setForm((prev) => ({
         ...prev,
@@ -64,35 +76,64 @@ const AddProduct = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2000);
-    setForm({
-      name: "",
-      sku: "",
-      price: "",
-      stock: "",
-      sold: "",
-      status: "Active",
-      images: [],
-      category: "Kids",
-      bestSelling: false,
-      topRated: false,
-    });
-    setTimeout(() => navigate("/admin/products"), 1200);
-  };
-
-  const handleBack = () => {
-    navigate("/admin/products");
-  };
-
-  // Toggle handlers for bestSelling and topRated
   const handleToggle = (field) => {
     setForm((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    
+    try {
+      // Generate a unique productId
+      const productId = `prod_${Date.now()}`;
+      
+      // Prepare the product data
+      const productData = {
+        productId,
+        productName: form.productName,
+        altNames: form.altNames ? form.altNames.split(',').map(name => name.trim()) : [],
+        images: form.images,
+        price: parseFloat(form.price),
+        lastPrice: form.lastPrice ? parseFloat(form.lastPrice) : parseFloat(form.price),
+        description: form.description,
+        stock: parseInt(form.stock),
+        soldCount: parseInt(form.soldCount),
+        category: form.category,
+        isBestSelling: form.isBestSelling,
+        isTopRated: form.isTopRated,
+        status: form.status
+      };
+
+      // Get auth token from localStorage
+      const token = localStorage.getItem('token');
+      
+      // Make API call
+      const response = await axios.post('http://localhost:5000/api/products', productData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Handle success
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        navigate("/admin/products");
+      }, 1200);
+
+    } catch (error) {
+      console.error("Error creating product:", error);
+      setError(error.response?.data?.message || "Failed to create product. Please try again.");
+    }
+  };
+
+  const handleBack = () => {
+    navigate("/admin/products");
   };
 
   return (
@@ -136,84 +177,123 @@ const AddProduct = () => {
               {/* Left column: Product details */}
               <div className="flex flex-col gap-4">
                 <div className="w-full">
-                  <label className="font-semibold">Product Name</label>
+                  <label className="font-semibold">Product Name*</label>
                   <input
                     type="text"
-                    name="name"
+                    name="productName"
                     required
                     placeholder="Product Name"
                     className="w-full px-4 py-2 border rounded-lg"
-                    value={form.name}
+                    value={form.productName}
                     onChange={handleChange}
                   />
                 </div>
-                <div className="w-full">
-                  <label className="font-semibold">SKU</label>
+
+                <div>
+                  <label className="font-semibold">Alternative Names</label>
                   <input
                     type="text"
-                    name="sku"
-                    required
-                    placeholder="SKU"
+                    name="altNames"
+                    placeholder="Comma separated alternative names"
                     className="w-full px-4 py-2 border rounded-lg"
-                    value={form.sku}
+                    value={form.altNames}
                     onChange={handleChange}
                   />
+                  <p className="mt-1 text-xs text-gray-500">Separate multiple names with commas</p>
                 </div>
+
                 <div>
-                  <label className="font-semibold">Price</label>
-                  <input
-                    type="text"
-                    name="price"
+                  <label className="font-semibold">Description*</label>
+                  <textarea
+                    name="description"
                     required
-                    placeholder="Price (e.g. Rs. 2,000)"
+                    placeholder="Product Description"
                     className="w-full px-4 py-2 border rounded-lg"
-                    value={form.price}
+                    value={form.description}
                     onChange={handleChange}
+                    rows="3"
                   />
                 </div>
-                <div>
-                  <label className="font-semibold">Stock</label>
-                  <input
-                    type="number"
-                    name="stock"
-                    required
-                    placeholder="Stock"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={form.stock}
-                    onChange={handleChange}
-                  />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-semibold">Current Price*</label>
+                    <input
+                      type="number"
+                      name="price"
+                      required
+                      placeholder="Current Price"
+                      className="w-full px-4 py-2 border rounded-lg"
+                      value={form.price}
+                      onChange={handleChange}
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-semibold">Previous Price</label>
+                    <input
+                      type="number"
+                      name="lastPrice"
+                      placeholder="Previous Price"
+                      className="w-full px-4 py-2 border rounded-lg"
+                      value={form.lastPrice}
+                      onChange={handleChange}
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="font-semibold">Sold</label>
-                  <input
-                    type="number"
-                    name="sold"
-                    required
-                    placeholder="Sold"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={form.sold}
-                    onChange={handleChange}
-                  />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-semibold">Stock*</label>
+                    <input
+                      type="number"
+                      name="stock"
+                      required
+                      placeholder="Stock"
+                      className="w-full px-4 py-2 border rounded-lg"
+                      value={form.stock}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-semibold">Sold Count</label>
+                    <input
+                      type="number"
+                      name="soldCount"
+                      placeholder="Sold Count"
+                      className="w-full px-4 py-2 border rounded-lg"
+                      value={form.soldCount}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <label className="font-semibold">Category</label>
+                  <label className="font-semibold">Category*</label>
                   <select
                     name="category"
                     className="w-full px-2 py-2 border rounded-lg"
                     value={form.category}
                     onChange={handleChange}
+                    required
                   >
-                    <option value="Kids">Kids</option>
-                    <option value="Men">Men</option>
-                    <option value="Women">Women</option>
+                    <option value="kids">Kids</option>
+                    <option value="men">Men</option>
+                    <option value="women">Women</option>
                   </select>
                 </div>
+
                 <div className="flex items-center gap-6">
                   <label className="flex items-center gap-2 font-semibold cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={form.bestSelling}
-                      onChange={() => handleToggle("bestSelling")}
+                      checked={form.isBestSelling}
+                      onChange={() => handleToggle("isBestSelling")}
                       className="accent-[#00796B] w-5 h-5"
                     />
                     Best Selling
@@ -221,37 +301,48 @@ const AddProduct = () => {
                   <label className="flex items-center gap-2 font-semibold cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={form.topRated}
-                      onChange={() => handleToggle("topRated")}
+                      checked={form.isTopRated}
+                      onChange={() => handleToggle("isTopRated")}
                       className="accent-[#00796B] w-5 h-5"
                     />
                     Top Rated
                   </label>
                 </div>
+
                 <div>
-                  <label className="font-semibold">Status</label>
+                  <label className="font-semibold">Status*</label>
                   <select
                     name="status"
                     className="w-full px-2 py-2 border rounded-lg"
                     value={form.status}
                     onChange={handleChange}
+                    required
                   >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                   </select>
                 </div>
+
                 <button
                   type="submit"
                   className="mt-2 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 rounded-lg transition w-full"
                 >
                   Add Product
                 </button>
+
                 {submitted && (
                   <div className="mt-2 font-semibold text-center text-green-600">
                     Product added successfully!
                   </div>
                 )}
+
+                {error && (
+                  <div className="mt-2 font-semibold text-center text-red-600">
+                    {error}
+                  </div>
+                )}
               </div>
+
               {/* Right column: Product images */}
               <div className="flex flex-col items-center gap-4">
                 <label className="mb-2 font-semibold">
