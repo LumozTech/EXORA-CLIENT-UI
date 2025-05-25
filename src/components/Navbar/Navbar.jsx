@@ -20,7 +20,7 @@ const Menu = [
 
 const DropdownLinks = [
   { id: 1, name: "All Products", link: "/all-products" },
-  { id: 2, name: "Best Selling", link: "/best-selling" },
+  { id: 2, name: "Best Selling", link: "/bestselling" },
   { id: 3, name: "Top Rated", link: "/top-rated" },
 ];
 
