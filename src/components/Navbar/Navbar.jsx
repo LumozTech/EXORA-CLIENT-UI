@@ -24,16 +24,30 @@ const DropdownLinks = [
   { id: 3, name: "Top Rated", link: "/top-rated" },
 ];
 
-// Simulate authentication state and user info
-const mockUser = {
-  isLoggedIn: true, // set to false to test logged-out state
-  name: "Jane Doe",
-  profile: "https://randomuser.me/api/portraits/women/44.jpg", // or use placeholderProfile
-};
-
 const Navbar = ({ handleOrderPopup }) => {
   const location = useLocation();
   const [profileDropdown, setProfileDropdown] = useState(false);
+
+  // Get user info from localStorage (real login)
+  const user = React.useMemo(() => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const u = JSON.parse(userData);
+        return {
+          isLoggedIn: true,
+          name: `${u.firstName || ""} ${u.lastName || ""}`.trim(),
+          profile: u.profilePic || placeholderProfile,
+        };
+      }
+    } catch (e) {}
+    // fallback (not logged in)
+    return {
+      isLoggedIn: false,
+      name: "",
+      profile: placeholderProfile,
+    };
+  }, []);
 
   // Helper to check if menu item is active
   const isActive = (link) => {
@@ -102,7 +116,7 @@ const Navbar = ({ handleOrderPopup }) => {
 
             {/* Auth/Profile section */}
             <div className="relative profile-dropdown">
-              {!mockUser.isLoggedIn ? (
+              {!user.isLoggedIn ? (
                 <Link
                   to="/login"
                   className="px-5 py-2 ml-2 font-semibold text-white transition-all duration-200 rounded-full shadow-md bg-gradient-to-r from-primary to-secondary hover:scale-105"
@@ -113,10 +127,10 @@ const Navbar = ({ handleOrderPopup }) => {
                 <div>
                   <button
                     className="flex items-center gap-2 px-2 py-1 transition-all duration-200 rounded-full hover:bg-primary/10 focus:outline-none"
-                    onClick={toggleProfileDropdown}
+                    onClick={() => setProfileDropdown((prev) => !prev)}
                   >
                     <img
-                      src={mockUser.profile || placeholderProfile}
+                      src={user.profile}
                       alt="Profile"
                       className="w-10 h-10 transition-all duration-200 border-2 rounded-full shadow-md border-primary hover:scale-105"
                     />
@@ -136,8 +150,11 @@ const Navbar = ({ handleOrderPopup }) => {
                     style={{ zIndex: 9999 }}
                   >
                     <div className="flex flex-col py-2">
+                      <div className="px-4 py-2 font-semibold text-primary">
+                        {user.name}
+                      </div>
                       <Link
-                        to="/profile"
+                        to="/profile/edit"
                         className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
                       >
                         My Profile
@@ -162,7 +179,12 @@ const Navbar = ({ handleOrderPopup }) => {
                       </Link>
                       <button
                         className="px-4 py-2 text-left text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/30"
-                        // onClick={handleLogout}
+                        onClick={() => {
+                          localStorage.removeItem("token");
+                          localStorage.removeItem("role");
+                          localStorage.removeItem("user");
+                          window.location.href = "/login";
+                        }}
                       >
                         Logout
                       </button>

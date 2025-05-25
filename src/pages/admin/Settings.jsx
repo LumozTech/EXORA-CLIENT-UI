@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import SlideBar from "../../components/admin/SlideBar";
 import AdminNavbar from "../../components/admin/Navbar";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { FaUserCircle, FaCamera } from "react-icons/fa";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -8,10 +11,12 @@ const CARD_BORDER = "#CBD5E0";
 
 const Settings = () => {
   const [profile, setProfile] = useState({
-    name: "Nimesha Perera",
-    email: "nimesha@gmail.com",
-    phone: "0771234567",
+    firstName: "",
+    lastName: "",
+    email: "",
+    profilePic: "",
   });
+  const [imageFile, setImageFile] = useState(null);
   const [password, setPassword] = useState({
     current: "",
     new: "",
@@ -19,163 +24,294 @@ const Settings = () => {
   });
   const [profileMsg, setProfileMsg] = useState("");
   const [passwordMsg, setPasswordMsg] = useState("");
+  const fileInputRef = useRef(null);
+
+  // Load user info from localStorage on mount
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const u = JSON.parse(userData);
+      setProfile({
+        firstName: u.firstName || "",
+        lastName: u.lastName || "",
+        email: u.email || "",
+        profilePic: u.profilePic || "",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "http://localhost:5000/api/users/profile",
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      setProfile({
+        firstName: res.data.user.firstName || "",
+        lastName: res.data.user.lastName || "",
+        email: res.data.user.email || "",
+        profilePic: res.data.user.profilePic || "",
+      });
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleProfileChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
+  };
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setProfile((prev) => ({
+        ...prev,
+        profilePic: URL.createObjectURL(file),
+      }));
+    }
+  };
+
+  const handleProfilePicClick = (e) => {
+    e.preventDefault();
+    fileInputRef.current.click();
   };
 
   const handlePasswordChange = (e) => {
     setPassword({ ...password, [e.target.name]: e.target.value });
   };
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    setProfileMsg("Profile updated successfully!");
-    setTimeout(() => setProfileMsg(""), 2000);
+
+    let imgUrl = profile.profilePic;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        "http://localhost:5000/api/users/profile",
+        {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          email: profile.email,
+          profilePic: imgUrl,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      setProfileMsg("Profile updated successfully!");
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...JSON.parse(localStorage.getItem("user")),
+          ...res.data.user,
+        })
+      );
+      setTimeout(() => setProfileMsg(""), 2000);
+    } catch (err) {
+      setProfileMsg("Failed to update profile!");
+      setTimeout(() => setProfileMsg(""), 2000);
+    }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (password.new !== password.confirm) {
       setPasswordMsg("New passwords do not match!");
       return;
     }
-    setPasswordMsg("Password updated successfully!");
-    setPassword({ current: "", new: "", confirm: "" });
-    setTimeout(() => setPasswordMsg(""), 2000);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        "http://localhost:5000/api/users/password",
+        {
+          currentPassword: password.current,
+          newPassword: password.new,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      setPasswordMsg("Password updated successfully!");
+      setPassword({ current: "", new: "", confirm: "" });
+      setTimeout(() => setPasswordMsg(""), 2000);
+    } catch (err) {
+      setPasswordMsg("Failed to update password!");
+      setTimeout(() => setPasswordMsg(""), 2000);
+    }
   };
 
   return (
-    <div
-      className="flex min-h-screen"
-      style={{
-        background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
-      }}
-    >
-      <div className="mt-6 ml-6">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#E0F2F1] to-[#CBD5E0]">
+      <div className="w-64 min-h-screen bg-white shadow-md">
         <SlideBar />
       </div>
-      <main className="flex-1 p-0 md:p-0">
-        <div className="mt-10 ml-6 mr-6">
+      
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="bg-white shadow-sm">
           <AdminNavbar pageTitle="Settings" />
-          <div
-            className="max-w-2xl p-8 mx-auto mt-8 mb-10 border shadow-md rounded-2xl"
-            style={{
-              background: CARD_BG,
-              borderColor: CARD_BORDER,
-              borderWidth: 1.5,
-            }}
-          >
-            <h2 className="mb-6 text-2xl font-bold" style={{ color: PRIMARY }}>
-              Admin Settings
-            </h2>
-            {/* Profile Update */}
-            <form onSubmit={handleProfileSubmit} className="mb-10">
-              <h3
-                className="mb-3 text-lg font-semibold"
-                style={{ color: PRIMARY }}
-              >
-                Update Profile
-              </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        </div>
+        
+        <div className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-6xl mx-auto">
+            <div 
+              className="p-8 bg-white border shadow-md rounded-2xl"
+              style={{
+                borderColor: CARD_BORDER,
+                borderWidth: 1.5,
+              }}
+            >
+              <h2 className="mb-6 text-2xl font-bold" style={{ color: PRIMARY }}>
+                Admin Settings
+              </h2>
+              
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
                 <div>
-                  <label className="font-semibold">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={profile.name}
-                    onChange={handleProfileChange}
-                  />
+                  <form onSubmit={handleProfileSubmit} className="mb-8">
+                    <h3 className="mb-4 text-lg font-semibold" style={{ color: PRIMARY }}>
+                      Update Profile
+                    </h3>
+                    <div className="flex flex-col items-center gap-4 mb-4">
+                      <div className="relative">
+                        {profile.profilePic ? (
+                          <img
+                            src={profile.profilePic}
+                            alt="Avatar Preview"
+                            className="object-cover w-24 h-24 border border-gray-300 rounded-full"
+                          />
+                        ) : (
+                          <FaUserCircle className="w-24 h-24 text-primary" />
+                        )}
+                        <button
+                          onClick={handleProfilePicClick}
+                          className="absolute p-2 bg-white rounded-full shadow bottom-1 right-1 hover:bg-gray-100"
+                          type="button"
+                          title="Upload Photo"
+                        >
+                          <FaCamera className="text-xl text-gray-600" />
+                        </button>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          ref={fileInputRef}
+                          onChange={handleProfilePicChange}
+                          className="hidden"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block mb-1 font-semibold">First Name</label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          className="w-full px-4 py-2 border rounded-lg"
+                          value={profile.firstName}
+                          onChange={handleProfileChange}
+                        />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Last Name</label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          className="w-full px-4 py-2 border rounded-lg"
+                          value={profile.lastName}
+                          onChange={handleProfileChange}
+                        />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          className="w-full px-4 py-2 border rounded-lg"
+                          value={profile.email}
+                          onChange={handleProfileChange}
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="w-full mt-4 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 px-6 rounded-lg transition"
+                      >
+                        Update Profile
+                      </button>
+                      {profileMsg && (
+                        <div className="mt-2 font-semibold text-green-600">
+                          {profileMsg}
+                        </div>
+                      )}
+                    </div>
+                  </form>
                 </div>
+                
                 <div>
-                  <label className="font-semibold">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={profile.email}
-                    onChange={handleProfileChange}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold">Phone</label>
-                  <input
-                    type="text"
-                    name="phone"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={profile.phone}
-                    onChange={handleProfileChange}
-                  />
+                  <form onSubmit={handlePasswordSubmit}>
+                    <h3 className="mb-4 text-lg font-semibold" style={{ color: PRIMARY }}>
+                      Change Password
+                    </h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block mb-1 font-semibold">Current Password</label>
+                        <input
+                          type="password"
+                          name="current"
+                          className="w-full px-4 py-2 border rounded-lg"
+                          value={password.current}
+                          onChange={handlePasswordChange}
+                        />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">New Password</label>
+                        <input
+                          type="password"
+                          name="new"
+                          className="w-full px-4 py-2 border rounded-lg"
+                          value={password.new}
+                          onChange={handlePasswordChange}
+                        />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Confirm New Password</label>
+                        <input
+                          type="password"
+                          name="confirm"
+                          className="w-full px-4 py-2 border rounded-lg"
+                          value={password.confirm}
+                          onChange={handlePasswordChange}
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="w-full mt-4 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 px-6 rounded-lg transition"
+                      >
+                        Update Password
+                      </button>
+                      {passwordMsg && (
+                        <div className={`mt-2 font-semibold ${
+                          passwordMsg.includes("success") ? "text-green-600" : "text-red-600"
+                        }`}>
+                          {passwordMsg}
+                        </div>
+                      )}
+                    </div>
+                  </form>
                 </div>
               </div>
-              <button
-                type="submit"
-                className="mt-4 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 px-6 rounded-lg transition"
-              >
-                Update Profile
-              </button>
-              {profileMsg && (
-                <div className="mt-2 font-semibold text-green-600">
-                  {profileMsg}
-                </div>
-              )}
-            </form>
-            {/* Password Update */}
-            <form onSubmit={handlePasswordSubmit}>
-              <h3
-                className="mb-3 text-lg font-semibold"
-                style={{ color: PRIMARY }}
-              >
-                Change Password
-              </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <label className="font-semibold">Current Password</label>
-                  <input
-                    type="password"
-                    name="current"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={password.current}
-                    onChange={handlePasswordChange}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold">New Password</label>
-                  <input
-                    type="password"
-                    name="new"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={password.new}
-                    onChange={handlePasswordChange}
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold">Confirm New Password</label>
-                  <input
-                    type="password"
-                    name="confirm"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={password.confirm}
-                    onChange={handlePasswordChange}
-                  />
-                </div>
-              </div>
-              <button
-                type="submit"
-                className="mt-4 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 px-6 rounded-lg transition"
-              >
-                Update Password
-              </button>
-              {passwordMsg && (
-                <div className="mt-2 font-semibold text-green-600">
-                  {passwordMsg}
-                </div>
-              )}
-            </form>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
