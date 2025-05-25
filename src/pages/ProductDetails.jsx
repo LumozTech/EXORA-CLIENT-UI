@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
-import { FaHeart, FaRegHeart, FaStar } from "react-icons/fa";
-import { FaRegSmile, FaRegThumbsUp } from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaStar, FaRegSmile, FaRegThumbsUp, FaClock } from "react-icons/fa";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import axios from "axios";
@@ -24,13 +23,15 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState([]);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewForm, setReviewForm] = useState({
-    user: "",
     rating: 5,
     comment: "",
+    productId: "",
+    productName: "",
   });
+  const [userReviewStatus, setUserReviewStatus] = useState(null);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndReviews = async () => {
       if (!productId) {
         console.error('No product ID available');
         toast.error('Product ID is missing');
@@ -40,26 +41,66 @@ const ProductDetails = () => {
 
       try {
         setLoading(true);
-        console.log('Fetching product with ID:', productId);
-        const response = await axios.get(`http://localhost:5000/api/products/${productId}`);
-        console.log('API Response:', response.data);
-        
-        if (response.data) {
-          setProduct(response.data);
-          setReviews([]); // Initialize empty reviews since we'll implement this later
+        const [productRes, reviewsRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/products/${productId}`),
+          axios.get(`http://localhost:5000/api/reviews/customer-reviews`)
+        ]);
+
+        if (productRes.data) {
+          setProduct(productRes.data);
+          setReviewForm(prev => ({
+            ...prev,
+            productId: productRes.data._id,
+            productName: productRes.data.productName
+          }));
+
+          // Filter reviews for this specific product and not hidden
+          console.log('All reviews:', reviewsRes.data.message);
+          console.log('Product ID:', productRes.data._id);
+          
+          const productReviews = reviewsRes.data.message.filter(review => {
+            console.log('Comparing:', review.productId, productRes.data._id);
+            return review.productId === productRes.data._id && !review.hidden;
+          });
+          
+          console.log('Filtered reviews:', productReviews);
+          setReviews(productReviews);
+
+          // Check if user has a review for this product
+          const token = localStorage.getItem('token');
+          if (token) {
+            const userEmail = JSON.parse(atob(token.split('.')[1])).email;
+            const userReview = reviewsRes.data.message.find(
+              review => review.email === userEmail && review.productId === productRes.data._id
+            );
+            if (userReview) {
+              setUserReviewStatus(userReview.hidden ? 'pending' : 'approved');
+            }
+          }
         } else {
           toast.error('Product not found');
         }
       } catch (error) {
-        console.error('Error fetching product:', error);
-        toast.error('Failed to fetch product details');
+        console.error('Error fetching data:', error);
+        toast.error(error.response?.data?.message || 'Failed to fetch product details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
+    fetchProductAndReviews();
   }, [productId]);
+
+  // Calculate average rating
+  const averageRating = reviews.length > 0
+    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+    : 0;
+
+  // Group reviews by rating
+  const reviewsByRating = reviews.reduce((acc, review) => {
+    acc[review.rating] = (acc[review.rating] || 0) + 1;
+    return acc;
+  }, {});
 
   useEffect(() => {
     AOS.init({
@@ -83,18 +124,52 @@ const ProductDetails = () => {
   };
 
   // Handle review submission
-  const handleAddReview = (e) => {
+  const handleAddReview = async (e) => {
     e.preventDefault();
-    const newReview = {
-      user: reviewForm.user || "Anonymous",
-      rating: reviewForm.rating,
-      comment: reviewForm.comment,
-    };
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Please login to add a review');
+      return;
+    }
 
-    setReviews([...reviews, newReview]);
-    toast.success('Review added successfully!');
-    setShowReviewModal(false);
-    setReviewForm({ user: "", rating: 5, comment: "" });
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/reviews',
+        {
+          productId: reviewForm.productId,
+          productName: reviewForm.productName,
+          rating: reviewForm.rating,
+          review: reviewForm.comment
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.data) {
+        toast.success('Review submitted successfully! Waiting for admin approval.');
+        setUserReviewStatus('pending');
+        setShowReviewModal(false);
+        setReviewForm(prev => ({
+          ...prev,
+          rating: 5,
+          comment: ""
+        }));
+
+        // Refresh reviews after submission
+        const reviewsRes = await axios.get(`http://localhost:5000/api/reviews/customer-reviews`);
+        const productReviews = reviewsRes.data.message.filter(
+          review => review.productId === reviewForm.productId && !review.hidden
+        );
+        setReviews(productReviews);
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error(error.response?.data?.message || 'Failed to submit review');
+    }
   };
 
   if (loading) {
@@ -254,37 +329,89 @@ const ProductDetails = () => {
 
         {/* Reviews Section */}
         <div className="mt-12" data-aos="fade-up">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="flex items-center gap-2 text-2xl font-bold">
-              <FaRegSmile className="text-yellow-400" /> Reviews
-            </h3>
-            <button
-              onClick={() => setShowReviewModal(true)}
-              className="px-4 py-2 text-white transition-colors rounded shadow bg-primary hover:bg-secondary"
-            >
-              Add Review
-            </button>
-          </div>
-          <div className="space-y-4">
-            {reviews.length === 0 ? (
-              <p className="text-gray-500">No reviews yet. Be the first to review!</p>
-            ) : (
-              reviews.map((review, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 bg-gray-100 rounded shadow dark:bg-gray-800"
-                  data-aos="fade-up"
-                  data-aos-delay={idx * 80}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold">{review.user}</span>
-                    <span className="flex text-yellow-400">
-                      {Array.from({ length: review.rating }).map((_, i) => (
-                        <FaStar key={i} />
-                      ))}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="flex items-center gap-2 text-2xl font-bold">
+                <FaRegSmile className="text-yellow-400" /> Customer Reviews
+              </h3>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar
+                      key={i}
+                      className={i < Math.round(averageRating) ? "text-yellow-400" : "text-gray-300"}
+                    />
+                  ))}
+                </div>
+                <span className="text-lg font-semibold">{averageRating} out of 5</span>
+                <span className="text-gray-500">({reviews.length} reviews)</span>
+              </div>
+              {/* Rating Distribution */}
+              <div className="mt-4 space-y-2">
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <div key={rating} className="flex items-center gap-2">
+                    <span className="w-12">{rating} stars</span>
+                    <div className="flex-1 h-2 bg-gray-200 rounded">
+                      <div
+                        className="h-full bg-yellow-400 rounded"
+                        style={{
+                          width: `${(reviewsByRating[rating] || 0) / reviews.length * 100}%`
+                        }}
+                      />
+                    </div>
+                    <span className="w-12 text-sm text-gray-500">
+                      {reviewsByRating[rating] || 0}
                     </span>
                   </div>
-                  <p>{review.comment}</p>
+                ))}
+              </div>
+            </div>
+            <div>
+              {!userReviewStatus && (
+                <button
+                  onClick={() => setShowReviewModal(true)}
+                  className="px-4 py-2 text-white transition-colors rounded shadow bg-primary hover:bg-secondary"
+                >
+                  Write a Review
+                </button>
+              )}
+              {userReviewStatus === 'pending' && (
+                <div className="flex items-center gap-2 px-4 py-2 text-yellow-600 bg-yellow-100 rounded dark:bg-yellow-900/30 dark:text-yellow-400">
+                  <FaClock />
+                  <span>Your review is pending approval</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Reviews List */}
+          <div className="space-y-4">
+            {reviews.length === 0 ? (
+              <p className="text-gray-500">No approved reviews yet. Be the first to review!</p>
+            ) : (
+              reviews.map((review) => (
+                <div
+                  key={review._id}
+                  className="p-4 bg-gray-100 rounded shadow dark:bg-gray-800"
+                  data-aos="fade-up"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">{review.email}</span>
+                      <span className="flex text-yellow-400">
+                        {[...Array(5)].map((_, i) => (
+                          <FaStar
+                            key={i}
+                            className={i < review.rating ? "text-yellow-400" : "text-gray-300"}
+                          />
+                        ))}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 dark:text-gray-300">{review.review}</p>
                 </div>
               ))
             )}
@@ -296,20 +423,9 @@ const ProductDetails = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg dark:bg-gray-900 animate-fadeIn">
               <h4 className="flex items-center gap-2 mb-4 text-xl font-bold">
-                <FaRegSmile className="text-yellow-400" /> Add a Review
+                <FaRegSmile className="text-yellow-400" /> Write a Review
               </h4>
               <form onSubmit={handleAddReview} className="space-y-4">
-                <div>
-                  <label className="block mb-1 font-medium">Name</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border rounded dark:bg-gray-800"
-                    value={reviewForm.user}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, user: e.target.value })
-                    }
-                  />
-                </div>
                 <div>
                   <label className="block mb-1 font-medium">Rating</label>
                   <div className="flex gap-1">
@@ -321,7 +437,7 @@ const ProductDetails = () => {
                           reviewForm.rating >= r
                             ? "text-yellow-400"
                             : "text-gray-300"
-                        } focus:outline-none`}
+                        } focus:outline-none transition-colors`}
                         onClick={() =>
                           setReviewForm({ ...reviewForm, rating: r })
                         }
@@ -333,7 +449,7 @@ const ProductDetails = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block mb-1 font-medium">Comment</label>
+                  <label className="block mb-1 font-medium">Review</label>
                   <textarea
                     className="w-full px-3 py-2 border rounded dark:bg-gray-800"
                     rows={3}
@@ -341,6 +457,7 @@ const ProductDetails = () => {
                     onChange={(e) =>
                       setReviewForm({ ...reviewForm, comment: e.target.value })
                     }
+                    placeholder="Share your experience with this product..."
                     required
                   />
                 </div>
@@ -356,7 +473,7 @@ const ProductDetails = () => {
                     type="submit"
                     className="px-4 py-2 text-white rounded bg-primary hover:bg-secondary"
                   >
-                    Submit
+                    Submit Review
                   </button>
                 </div>
               </form>
