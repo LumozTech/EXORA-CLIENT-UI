@@ -154,7 +154,7 @@ const Navbar = ({ handleOrderPopup }) => {
                         {user.name}
                       </div>
                       <Link
-                        to="/profile"
+                        to="/profile/edit"
                         className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
                       >
                         My Profile

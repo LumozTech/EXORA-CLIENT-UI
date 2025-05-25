@@ -1,15 +1,12 @@
 import React from "react";
 import Logo from "../../assets/logo.png";
-import { FaUserCircle, FaChevronDown } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
 
 // Color theme
 const NAVBAR_BG = "#00796B";
 const NAVBAR_TEXT = "#F5F5F5";
 
 const AdminNavbar = ({ pageTitle = "Dashboard" }) => {
-  // Dropdown state
-  const [open, setOpen] = React.useState(false);
-
   // Get user info from localStorage
   const user = React.useMemo(() => {
     try {
@@ -47,64 +44,24 @@ const AdminNavbar = ({ pageTitle = "Dashboard" }) => {
           {pageTitle}
         </span>
       </div>
-      {/* Right: User Info with Dropdown */}
-      <div className="relative flex items-center gap-3">
-        <button
-          className="flex items-center gap-2 focus:outline-none"
-          onClick={() => setOpen((o) => !o)}
-        >
-          {user.avatar ? (
-            <img
-              src={user.avatar}
-              alt="User"
-              className="object-cover w-10 h-10 border-2 border-white rounded-full shadow"
-            />
-          ) : (
-            <FaUserCircle
-              className="w-10 h-10"
-              style={{ color: NAVBAR_TEXT }}
-            />
-          )}
-          <div className="flex flex-col items-start text-left">
-            <span className="font-semibold leading-tight">{user.name}</span>
-            <span className="text-xs opacity-80">{user.email}</span>
-          </div>
-          <FaChevronDown
-            className={`ml-1 transition-transform ${open ? "rotate-180" : ""}`}
+      {/* Right: User Info */}
+      <div className="flex items-center gap-3">
+        {user.avatar ? (
+          <img
+            src={user.avatar}
+            alt="User"
+            className="object-cover w-10 h-10 border-2 border-white rounded-full shadow"
           />
-        </button>
-        {/* Dropdown */}
-        {open && (
-          <div
-            className="absolute right-0 top-14 min-w-[180px] bg-white rounded-xl shadow-lg z-50 py-2"
-            style={{ color: "#222" }}
-            onMouseLeave={() => setOpen(false)}
-          >
-            <div className="px-4 py-2 text-sm font-semibold border-b">
-              Signed in as
-              <br />
-              <span className="text-[#00796B]">{user.email}</span>
-            </div>
-            <button
-              className="w-full px-4 py-2 text-left hover:bg-[#E0F2F1] transition text-sm"
-              onClick={() => {
-                setOpen(false);
-                window.location.href = "/profile/edit";
-              }}
-            >
-              Edit Profile
-            </button>
-            <button
-              className="w-full px-4 py-2 text-left hover:bg-[#E0F2F1] transition text-sm"
-              onClick={() => {
-                setOpen(false);
-                window.location.href = "/login";
-              }}
-            >
-              Logout
-            </button>
-          </div>
+        ) : (
+          <FaUserCircle
+            className="w-10 h-10"
+            style={{ color: NAVBAR_TEXT }}
+          />
         )}
+        <div className="flex flex-col items-start text-left">
+          <span className="font-semibold leading-tight">{user.name}</span>
+          <span className="text-xs opacity-80">{user.email}</span>
+        </div>
       </div>
     </nav>
   );
