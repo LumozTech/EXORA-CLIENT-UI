@@ -5,6 +5,7 @@ import Logo from "../assets/women/women4.jpg";
 import { FaGoogle, FaFacebookF, FaCamera, FaTimes } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { uploadMediaToSupabase } from "../utils/mediaUploads";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -16,25 +17,36 @@ const Register = () => {
     profilePic: "",
   });
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleProfilePicChange = (e) => {
+  const handleProfilePicChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm((prev) => ({ ...prev, profilePic: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Show preview immediately
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setForm(prev => ({ ...prev, profilePic: reader.result }));
+        };
+        reader.readAsDataURL(file);
+        
+        // Store file for later upload
+        setImageFile(file);
+      } catch (error) {
+        console.error("Error handling profile picture:", error);
+        toast.error("Failed to process image");
+      }
     }
   };
 
   const handleRemoveProfilePic = () => {
-    setForm((prev) => ({ ...prev, profilePic: "" }));
+    setForm(prev => ({ ...prev, profilePic: "" }));
+    setImageFile(null);
   };
 
   const handleProfilePicClick = (e) => {
@@ -44,32 +56,58 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match!");
-      return;
-    }
     setLoading(true);
+
     try {
-      await axios.post("http://localhost:5000/api/users/", {
+      // Validate passwords match
+      if (form.password !== form.confirmPassword) {
+        toast.error("Passwords do not match!");
+        return;
+      }
+
+      let profilePicUrl = "";
+      
+      // Upload profile picture if one was selected
+      if (imageFile) {
+        try {
+          profilePicUrl = await uploadMediaToSupabase(imageFile, 'profiles');
+        } catch (uploadError) {
+          console.error("Failed to upload profile picture:", uploadError);
+          toast.error("Failed to upload profile picture");
+          return;
+        }
+      }
+
+      // Register user
+      const response = await axios.post("http://localhost:5000/api/users/register", {
         email: form.email,
         firstName: form.firstName,
         lastName: form.lastName,
         password: form.password,
-        profilePic: form.profilePic,
+        profilePic: profilePicUrl || undefined // Only send if we have a URL
       });
-      toast.success("Registration successful!");
-      setForm({
-        email: "",
-        firstName: "",
-        lastName: "",
-        password: "",
-        confirmPassword: "",
-        profilePic: "",
-      });
-    } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Registration failed. Please try again."
-      );
+
+      if (response.data) {
+        toast.success("Registration successful! Please login.");
+        // Reset form
+        setForm({
+          email: "",
+          firstName: "",
+          lastName: "",
+          password: "",
+          confirmPassword: "",
+          profilePic: "",
+        });
+        setImageFile(null);
+        
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error(error.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }

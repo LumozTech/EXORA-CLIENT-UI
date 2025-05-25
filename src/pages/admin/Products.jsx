@@ -19,6 +19,7 @@ import AdminNavbar from "../../components/admin/Navbar";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { uploadMediaToSupabase, deleteMediaFromSupabase } from "../../utils/mediaUploads";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -134,34 +135,138 @@ const Products = () => {
     }
   };
 
-  // Delete product
-  const handleDelete = async (productId) => {
+  // Handle image changes
+  const handleEditImageChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length + editForm.images.length > 5) {
+      toast.error("You can upload up to 5 images only");
+      return;
+    }
+    
+    // Show previews immediately
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditForm(prev => ({
+          ...prev,
+          images: [...prev.images, reader.result].slice(0, 5),
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+
     try {
-      const token = localStorage.getItem('token');
+      // Upload new images to Supabase
+      const uploadPromises = files.map(file => 
+        uploadMediaToSupabase(file, 'products')
+      );
+      
+      const uploadedUrls = await Promise.all(uploadPromises);
+      
+      // Update form with new image URLs
+      setEditForm(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedUrls].slice(0, 5),
+      }));
+    } catch (error) {
+      console.error("Failed to upload images:", error);
+      toast.error("Failed to upload images");
+    }
+  };
+
+  // Handle image removal
+  const handleRemoveEditImage = async (idx) => {
+    const imageUrl = editForm.images[idx];
+    
+    try {
+      // If the image is from Supabase, delete it
+      if (imageUrl && imageUrl.includes('supabase')) {
+        await deleteMediaFromSupabase(imageUrl, 'products');
+      }
+      
+      setEditForm(prev => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== idx),
+      }));
+    } catch (error) {
+      console.error("Failed to remove image:", error);
+      toast.error("Failed to remove image");
+    }
+  };
+
+  // Handle form submission
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Update product
+      const response = await axios.put(
+        `http://localhost:5000/api/products/${editingProduct.productId}`,
+        editForm,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data) {
+        toast.success("Product updated successfully!");
+        // Update products list
+        setProducts(prev =>
+          prev.map(p =>
+            p.productId === editingProduct.productId ? response.data : p
+          )
+        );
+        setEditingProduct(null);
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+      toast.error(error.response?.data?.message || "Failed to update product");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle product deletion
+  const handleDelete = async (productId) => {
+    if (!confirmDelete || confirmDelete !== productId) {
+      setConfirmDelete(productId);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const productToDelete = products.find(p => p.productId === productId);
+      
+      // Delete product images from Supabase
+      if (productToDelete?.images?.length) {
+        const deletePromises = productToDelete.images
+          .filter(url => url.includes('supabase'))
+          .map(url => deleteMediaFromSupabase(url, 'products'));
+        
+        await Promise.all(deletePromises);
+      }
+      
+      // Delete product from database
       await axios.delete(`http://localhost:5000/api/products/${productId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setProducts(products.filter(p => p.productId !== productId));
+
+      toast.success("Product deleted successfully!");
+      setProducts(prev => prev.filter(p => p.productId !== productId));
       setConfirmDelete(null);
-      toast.success('Product deleted successfully!', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to delete product", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast.error(error.response?.data?.message || "Failed to delete product");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -202,91 +307,6 @@ const Products = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-  };
-
-  // Handle image changes
-  const handleEditImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length + editForm.images.length > 5) {
-      alert("You can upload up to 5 images only.");
-      return;
-    }
-    
-    const readers = files.map(
-      (file) =>
-        new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        })
-    );
-    
-    Promise.all(readers).then((images) => {
-      setEditForm(prev => ({
-        ...prev,
-        images: [...prev.images, ...images].slice(0, 5),
-      }));
-    });
-  };
-
-  // Handle image removal
-  const handleRemoveEditImage = (idx) => {
-    setEditForm(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== idx),
-    }));
-  };
-
-  // Handle form submission
-  const handleUpdateProduct = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      const productData = {
-        ...editForm,
-        altNames: editForm.altNames ? editForm.altNames.split(',').map(name => name.trim()) : [],
-        price: parseFloat(editForm.price),
-        lastPrice: editForm.lastPrice ? parseFloat(editForm.lastPrice) : parseFloat(editForm.price),
-        stock: parseInt(editForm.stock),
-        soldCount: parseInt(editForm.soldCount),
-      };
-
-      await axios.put(
-        `http://localhost:5000/api/products/${editingProduct.productId}`,
-        productData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      // Update products list
-      setProducts(products.map(p => 
-        p.productId === editingProduct.productId ? { ...p, ...productData } : p
-      ));
-
-      // Close modal and show success message
-      setEditingProduct(null);
-      toast.success('Product updated successfully!', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to update product", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    }
   };
 
   return (
@@ -633,7 +653,7 @@ const Products = () => {
                 Edit Product
               </h3>
               
-              <form onSubmit={handleUpdateProduct} className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <form onSubmit={handleEditSubmit} className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Left column: Product details */}
                 <div className="flex flex-col gap-4">
                   <div>

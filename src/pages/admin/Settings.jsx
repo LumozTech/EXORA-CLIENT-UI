@@ -4,6 +4,7 @@ import AdminNavbar from "../../components/admin/Navbar";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { FaUserCircle, FaCamera } from "react-icons/fa";
+import { uploadMediaToSupabase, deleteMediaFromSupabase } from "../../utils/mediaUploads";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -22,6 +23,7 @@ const Settings = () => {
     new: "",
     confirm: "",
   });
+  const [loading, setLoading] = useState(false);
   const [profileMsg, setProfileMsg] = useState("");
   const [passwordMsg, setPasswordMsg] = useState("");
   const fileInputRef = useRef(null);
@@ -42,21 +44,26 @@ const Settings = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        "http://localhost:5000/api/users/profile",
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      );
-      setProfile({
-        firstName: res.data.user.firstName || "",
-        lastName: res.data.user.lastName || "",
-        email: res.data.user.email || "",
-        profilePic: res.data.user.profilePic || "",
-      });
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          "http://localhost:5000/api/users/profile",
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
+        setProfile({
+          firstName: res.data.user.firstName || "",
+          lastName: res.data.user.lastName || "",
+          email: res.data.user.email || "",
+          profilePic: res.data.user.profilePic || "",
+        });
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast.error("Failed to fetch profile");
+      }
     };
 
     fetchProfile();
@@ -66,14 +73,23 @@ const Settings = () => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  const handleProfilePicChange = (e) => {
+  const handleProfilePicChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFile(file);
-      setProfile((prev) => ({
-        ...prev,
-        profilePic: URL.createObjectURL(file),
-      }));
+      try {
+        // Show preview immediately
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfile(prev => ({ ...prev, profilePic: reader.result }));
+        };
+        reader.readAsDataURL(file);
+        
+        // Store file for later upload
+        setImageFile(file);
+      } catch (error) {
+        console.error("Error handling profile picture:", error);
+        toast.error("Failed to process image");
+      }
     }
   };
 
@@ -88,10 +104,28 @@ const Settings = () => {
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
-
-    let imgUrl = profile.profilePic;
+    setLoading(true);
 
     try {
+      let profilePicUrl = profile.profilePic;
+
+      // If a new image was selected, upload it
+      if (imageFile) {
+        try {
+          // Delete old profile picture if it exists and is from Supabase
+          if (profile.profilePic && profile.profilePic.includes('supabase')) {
+            await deleteMediaFromSupabase(profile.profilePic, 'profiles');
+          }
+          
+          // Upload new profile picture
+          profilePicUrl = await uploadMediaToSupabase(imageFile, 'profiles');
+        } catch (uploadError) {
+          console.error("Failed to handle profile picture:", uploadError);
+          toast.error("Failed to update profile picture");
+          return;
+        }
+      }
+
       const token = localStorage.getItem("token");
       const res = await axios.put(
         "http://localhost:5000/api/users/profile",
@@ -99,7 +133,7 @@ const Settings = () => {
           firstName: profile.firstName,
           lastName: profile.lastName,
           email: profile.email,
-          profilePic: imgUrl,
+          profilePic: profilePicUrl,
         },
         {
           headers: {
@@ -107,7 +141,8 @@ const Settings = () => {
           },
         }
       );
-      setProfileMsg("Profile updated successfully!");
+
+      // Update local storage
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -115,10 +150,18 @@ const Settings = () => {
           ...res.data.user,
         })
       );
+
+      setImageFile(null);
+      toast.success("Profile updated successfully!");
+      setProfileMsg("Profile updated successfully!");
       setTimeout(() => setProfileMsg(""), 2000);
-    } catch (err) {
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(error.response?.data?.message || "Failed to update profile");
       setProfileMsg("Failed to update profile!");
       setTimeout(() => setProfileMsg(""), 2000);
+    } finally {
+      setLoading(false);
     }
   };
 
