@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../../assets/logo.png";
 import { IoMdSearch } from "react-icons/io";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaCaretDown } from "react-icons/fa";
 import DarkMode from "./DarkMode";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 
 // Placeholder profile image
 const placeholderProfile =
@@ -20,43 +20,76 @@ const Menu = [
 
 const DropdownLinks = [
   { id: 1, name: "All Products", link: "/all-products" },
-  { id: 2, name: "Best Selling", link: "/best-selling" },
+  { id: 2, name: "Best Selling", link: "/bestselling" },
   { id: 3, name: "Top Rated", link: "/top-rated" },
 ];
 
 const Navbar = ({ handleOrderPopup }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [profileDropdown, setProfileDropdown] = useState(false);
+  const [user, setUser] = useState(null);
 
-  // Get user info from localStorage (real login)
-  const user = React.useMemo(() => {
-    try {
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        const u = JSON.parse(userData);
-        return {
-          isLoggedIn: true,
-          name: `${u.firstName || ""} ${u.lastName || ""}`.trim(),
-          profile: u.profilePic || placeholderProfile,
-        };
+  // Check authentication status and get user info
+  useEffect(() => {
+    const checkAuth = () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userData = localStorage.getItem("user");
+        
+        if (token && userData) {
+          const parsedUser = JSON.parse(userData);
+          setUser({
+            isLoggedIn: true,
+            name: `${parsedUser.firstName || ""} ${parsedUser.lastName || ""}`.trim(),
+            profile: parsedUser.profilePic || placeholderProfile,
+            role: parsedUser.type || "user"
+          });
+        } else {
+          setUser({
+            isLoggedIn: false,
+            name: "",
+            profile: placeholderProfile,
+            role: null
+          });
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        setUser({
+          isLoggedIn: false,
+          name: "",
+          profile: placeholderProfile,
+          role: null
+        });
       }
-    } catch (e) {}
-    // fallback (not logged in)
-    return {
-      isLoggedIn: false,
-      name: "",
-      profile: placeholderProfile,
     };
+
+    checkAuth();
+    // Listen for storage changes
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, []);
 
   // Helper to check if menu item is active
   const isActive = (link) => {
     if (link.startsWith("/#")) {
-      return (
-        location.pathname === "/" && location.hash === link.replace("/", "")
-      );
+      return location.pathname === "/" && location.hash === link.replace("/", "");
     }
     return location.pathname === link;
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    setUser({
+      isLoggedIn: false,
+      name: "",
+      profile: placeholderProfile,
+      role: null
+    });
+    navigate("/login");
   };
 
   // Handle dropdown toggle
@@ -65,10 +98,13 @@ const Navbar = ({ handleOrderPopup }) => {
   };
 
   // Close dropdown on click outside
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClick = (e) => {
-      if (!e.target.closest(".profile-dropdown")) setProfileDropdown(false);
+      if (!e.target.closest(".profile-dropdown")) {
+        setProfileDropdown(false);
+      }
     };
+    
     if (profileDropdown) {
       document.addEventListener("mousedown", handleClick);
     }
@@ -116,7 +152,7 @@ const Navbar = ({ handleOrderPopup }) => {
 
             {/* Auth/Profile section */}
             <div className="relative profile-dropdown">
-              {!user.isLoggedIn ? (
+              {!user?.isLoggedIn ? (
                 <Link
                   to="/login"
                   className="px-5 py-2 ml-2 font-semibold text-white transition-all duration-200 rounded-full shadow-md bg-gradient-to-r from-primary to-secondary hover:scale-105"
@@ -127,13 +163,17 @@ const Navbar = ({ handleOrderPopup }) => {
                 <div>
                   <button
                     className="flex items-center gap-2 px-2 py-1 transition-all duration-200 rounded-full hover:bg-primary/10 focus:outline-none"
-                    onClick={() => setProfileDropdown((prev) => !prev)}
+                    onClick={toggleProfileDropdown}
                   >
                     <img
                       src={user.profile}
                       alt="Profile"
                       className="w-10 h-10 transition-all duration-200 border-2 rounded-full shadow-md border-primary hover:scale-105"
+                      onError={(e) => {
+                        e.target.src = placeholderProfile;
+                      }}
                     />
+                    <span className="font-medium">{user.name || "User"}</span>
                     <FaCaretDown
                       className={`transition-transform duration-200 ${
                         profileDropdown ? "rotate-180" : ""
@@ -150,41 +190,49 @@ const Navbar = ({ handleOrderPopup }) => {
                     style={{ zIndex: 9999 }}
                   >
                     <div className="flex flex-col py-2">
-                      <div className="px-4 py-2 font-semibold text-primary">
-                        {user.name}
+                      <div className="px-4 py-2 font-semibold text-primary border-b border-gray-100 dark:border-gray-700">
+                        {user.name || "User"}
                       </div>
+                      {user.role === "admin" && (
+                        <Link
+                          to="/admin/dashboard"
+                          className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                          onClick={() => setProfileDropdown(false)}
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
                       <Link
                         to="/profile/edit"
                         className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                        onClick={() => setProfileDropdown(false)}
                       >
                         My Profile
                       </Link>
                       <Link
                         to="/wishlist"
                         className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                        onClick={() => setProfileDropdown(false)}
                       >
                         Wishlist
                       </Link>
                       <Link
                         to="/cart"
                         className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                        onClick={() => setProfileDropdown(false)}
                       >
                         Cart
                       </Link>
                       <Link
                         to="/orders"
                         className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                        onClick={() => setProfileDropdown(false)}
                       >
                         My Orders
                       </Link>
                       <button
-                        className="px-4 py-2 text-left text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/30"
-                        onClick={() => {
-                          localStorage.removeItem("token");
-                          localStorage.removeItem("role");
-                          localStorage.removeItem("user");
-                          window.location.href = "/login";
-                        }}
+                        className="px-4 py-2 text-left text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/30 border-t border-gray-100 dark:border-gray-700"
+                        onClick={handleLogout}
                       >
                         Logout
                       </button>
@@ -225,12 +273,12 @@ const Navbar = ({ handleOrderPopup }) => {
               <ul>
                 {DropdownLinks.map((data) => (
                   <li key={data.id}>
-                    <a
-                      href={data.link}
-                      className="inline-block w-full p-2 rounded-md hover:bg-primary/20 "
+                    <Link
+                      to={data.link}
+                      className="inline-block w-full p-2 rounded-md hover:bg-primary/20"
                     >
                       {data.name}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

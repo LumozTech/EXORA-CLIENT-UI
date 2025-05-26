@@ -65,8 +65,10 @@ const App = () => {
         <Route path="/mens-wear" element={<MensWear />} />
         <Route path="/womens-wear" element={<WomensWear />} />
         <Route path="/top-rated" element={<TopRated />} />
+        <Route path="/all-products" element={<AllProduct />} />
+        <Route path="/bestselling" element={<Bestselling />} />
         <Route
-          path="/product/:id"
+          path="/product/:productId"
           element={
             <ProductDetails
               orderPopup={orderPopup}

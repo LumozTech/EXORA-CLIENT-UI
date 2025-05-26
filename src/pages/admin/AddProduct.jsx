@@ -4,6 +4,9 @@ import AdminNavbar from "../../components/admin/Navbar";
 import { FaBoxOpen, FaCamera, FaArrowLeft, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { uploadMediaToSupabase } from "../../utils/mediaUploads";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -25,6 +28,8 @@ const AddProduct = () => {
     status: "active"
   });
 
+  const [imageFiles, setImageFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
@@ -42,26 +47,25 @@ const AddProduct = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + form.images.length > 5) {
-      alert("You can upload up to 5 images only.");
+    if (files.length + imageFiles.length > 5) {
+      toast.error("You can upload up to 5 images only");
       return;
     }
     
-    const readers = files.map(
-      (file) =>
-        new Promise((resolve) => {
+    // Show previews immediately
+    files.forEach(file => {
           const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        })
-    );
-    
-    Promise.all(readers).then((images) => {
-      setForm((prev) => ({
+      reader.onloadend = () => {
+        setForm(prev => ({
         ...prev,
-        images: [...prev.images, ...images].slice(0, 5),
+          images: [...prev.images, reader.result].slice(0, 5),
       }));
+      };
+      reader.readAsDataURL(file);
     });
+    
+    // Store files for later upload
+    setImageFiles(prev => [...prev, ...files].slice(0, 5));
   };
 
   const handleImageClick = (e) => {
@@ -70,14 +74,15 @@ const AddProduct = () => {
   };
 
   const handleRemoveImage = (idx) => {
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== idx),
     }));
+    setImageFiles(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleToggle = (field) => {
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       [field]: !prev[field],
     }));
@@ -86,8 +91,16 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
     
     try {
+      // Upload all images to Supabase
+      const uploadPromises = imageFiles.map(file => 
+        uploadMediaToSupabase(file, 'products')
+      );
+      
+      const uploadedUrls = await Promise.all(uploadPromises);
+      
       // Generate a unique productId
       const productId = `prod_${Date.now()}`;
       
@@ -96,7 +109,7 @@ const AddProduct = () => {
         productId,
         productName: form.productName,
         altNames: form.altNames ? form.altNames.split(',').map(name => name.trim()) : [],
-        images: form.images,
+        images: uploadedUrls,
         price: parseFloat(form.price),
         lastPrice: form.lastPrice ? parseFloat(form.lastPrice) : parseFloat(form.price),
         description: form.description,
@@ -120,6 +133,7 @@ const AddProduct = () => {
       });
 
       // Handle success
+      toast.success("Product added successfully!");
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
@@ -128,7 +142,10 @@ const AddProduct = () => {
 
     } catch (error) {
       console.error("Error creating product:", error);
+      toast.error(error.response?.data?.message || "Failed to create product");
       setError(error.response?.data?.message || "Failed to create product. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
