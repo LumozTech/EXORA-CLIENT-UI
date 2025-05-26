@@ -27,6 +27,9 @@ import Orders from "./pages/admin/Orders";
 import Settings from "./pages/admin/Settings";
 import AdminRoute from "./components/AdminRoute";
 import UserRoute from "./components/UserRoute";
+import { CartProvider } from "./context/CartContext";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -46,147 +49,150 @@ const App = () => {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/"
-          element={
-            <HomePage
-              orderPopup={orderPopup}
-              setOrderPopup={setOrderPopup}
-              handleOrderPopup={handleOrderPopup}
-            />
-          }
-        />
-        <Route path="/kids-wear" element={<KidsWear />} />
-        <Route path="/mens-wear" element={<MensWear />} />
-        <Route path="/womens-wear" element={<WomensWear />} />
-        <Route path="/top-rated" element={<TopRated />} />
-        <Route path="/all-products" element={<AllProduct />} />
-        <Route path="/bestselling" element={<Bestselling />} />
-        <Route
-          path="/product/:productId"
-          element={
-            <ProductDetails
-              orderPopup={orderPopup}
-              setOrderPopup={setOrderPopup}
-              handleOrderPopup={handleOrderPopup}
-            />
-          }
-        />
+    <CartProvider>
+      <Router>
+        <ToastContainer />
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/"
+            element={
+              <HomePage
+                orderPopup={orderPopup}
+                setOrderPopup={setOrderPopup}
+                handleOrderPopup={handleOrderPopup}
+              />
+            }
+          />
+          <Route path="/kids-wear" element={<KidsWear />} />
+          <Route path="/mens-wear" element={<MensWear />} />
+          <Route path="/womens-wear" element={<WomensWear />} />
+          <Route path="/top-rated" element={<TopRated />} />
+          <Route path="/all-products" element={<AllProduct />} />
+          <Route path="/bestselling" element={<Bestselling />} />
+          <Route
+            path="/product/:productId"
+            element={
+              <ProductDetails
+                orderPopup={orderPopup}
+                setOrderPopup={setOrderPopup}
+                handleOrderPopup={handleOrderPopup}
+              />
+            }
+          />
 
-        {/* User protected routes */}
-        <Route
-          path="/cart"
-          element={
-            <UserRoute>
-              <Cart />
-            </UserRoute>
-          }
-        />
-        <Route
-          path="/checkout"
-          element={
-            <UserRoute>
-              <ProceedToCheckout />
-            </UserRoute>
-          }
-        />
-        <Route
-          path="/orders"
-          element={
-            <UserRoute>
-              <MyOrders />
-            </UserRoute>
-          }
-        />
-        <Route
-          path="/wishlist"
-          element={
-            <UserRoute>
-              <Wishlist />
-            </UserRoute>
-          }
-        />
-        <Route
-          path="/profile/edit"
-          element={
-            <UserRoute>
-              <Profile />
-            </UserRoute>
-          }
-        />
+          {/* User protected routes */}
+          <Route
+            path="/cart"
+            element={
+              <UserRoute>
+                <Cart />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <UserRoute>
+                <ProceedToCheckout />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <UserRoute>
+                <MyOrders />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/wishlist"
+            element={
+              <UserRoute>
+                <Wishlist />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/profile/edit"
+            element={
+              <UserRoute>
+                <Profile />
+              </UserRoute>
+            }
+          />
 
-        {/* Admin protected routes */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            <AdminRoute>
-              <Users />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/add-user"
-          element={
-            <AdminRoute>
-              <AddUser />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/products"
-          element={
-            <AdminRoute>
-              <Products />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/add-product"
-          element={
-            <AdminRoute>
-              <AddProduct />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/reviews"
-          element={
-            <AdminRoute>
-              <Reviews />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/orders"
-          element={
-            <AdminRoute>
-              <Orders />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/settings"
-          element={
-            <AdminRoute>
-              <Settings />
-            </AdminRoute>
-          }
-        />
-      </Routes>
-    </Router>
+          {/* Admin protected routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <Users />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/add-user"
+            element={
+              <AdminRoute>
+                <AddUser />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <AdminRoute>
+                <Products />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/add-product"
+            element={
+              <AdminRoute>
+                <AddProduct />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="admin/reviews"
+            element={
+              <AdminRoute>
+                <Reviews />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <AdminRoute>
+                <Orders />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <AdminRoute>
+                <Settings />
+              </AdminRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </CartProvider>
   );
 };
 

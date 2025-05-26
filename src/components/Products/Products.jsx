@@ -1,14 +1,24 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa6";
+import { useCart } from "../../context/CartContext";
+import { toast } from "react-toastify";
 
 const Products = ({ products = [], loading = false, title = "Our Products" }) => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   // Format price
   const formatPrice = (price) => {
     if (!price) return "Rs. 0";
     return `Rs. ${price.toLocaleString()}`;
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async (e, product) => {
+    e.stopPropagation(); // Prevent navigation when clicking add to cart
+    if (product.stock === 0) return;
+    await addToCart(product.productId, 1, 'M');
   };
 
   if (loading) {
@@ -107,16 +117,29 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
                       <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
                     )}
                   </div>
-                  <button 
-                    className={`px-4 py-2 text-white transition-colors rounded ${
-                      product.stock > 0 
-                        ? 'bg-primary hover:bg-secondary' 
-                        : 'bg-gray-400 cursor-not-allowed'
-                    }`}
-                    disabled={product.stock === 0}
-                  >
-                    {product.stock > 0 ? 'View Details' : 'Out of Stock'}
-                  </button>
+                  <div className="flex gap-2 w-full">
+                    <button 
+                      className={`flex-1 px-4 py-2 text-white transition-colors rounded ${
+                        product.stock > 0 
+                          ? 'bg-primary hover:bg-secondary' 
+                          : 'bg-gray-400 cursor-not-allowed'
+                      }`}
+                      onClick={(e) => handleAddToCart(e, product)}
+                      disabled={product.stock === 0}
+                    >
+                      Add to Cart
+                    </button>
+                    <button 
+                      className={`flex-1 px-4 py-2 text-white transition-colors rounded ${
+                        product.stock > 0 
+                          ? 'bg-secondary hover:bg-primary' 
+                          : 'bg-gray-400 cursor-not-allowed'
+                      }`}
+                      disabled={product.stock === 0}
+                    >
+                      View Details
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

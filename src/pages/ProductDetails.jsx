@@ -8,6 +8,7 @@ import "aos/dist/aos.css";
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useCart } from "../context/CartContext";
 
 const ProductDetails = () => {
   const params = useParams();
@@ -29,6 +30,9 @@ const ProductDetails = () => {
     productName: "",
   });
   const [userReviewStatus, setUserReviewStatus] = useState(null);
+  const { addToCart } = useCart();
+  const [selectedSize, setSelectedSize] = useState('M');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProductAndReviews = async () => {
@@ -172,6 +176,12 @@ const ProductDetails = () => {
     }
   };
 
+  // Add to cart handler
+  const handleAddToCart = async () => {
+    if (!product) return;
+    await addToCart(product.productId, quantity, selectedSize);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -298,11 +308,52 @@ const ProductDetails = () => {
                     </span>
                   )}
               </div>
+
+              {/* Size Selection */}
+              <div className="space-y-2">
+                <span className="font-semibold">Select Size:</span>
+                <div className="flex gap-2">
+                  {['S', 'M', 'L', 'XL'].map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 border rounded ${
+                        selectedSize === size
+                          ? 'bg-primary text-white'
+                          : 'border-gray-300 hover:border-primary'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quantity Selection */}
+              <div className="space-y-2">
+                <span className="font-semibold">Quantity:</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="px-3 py-1 border rounded hover:border-primary"
+                  >
+                    -
+                  </button>
+                  <span className="w-8 text-center">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(q => Math.min(product?.stock || 5, q + 1))}
+                    className="px-3 py-1 border rounded hover:border-primary"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
               </div>
 
             {/* Action Buttons */}
               <div className="flex gap-4 mt-6">
                 <button 
+                  onClick={handleAddToCart}
                   className={`px-6 py-2 font-semibold text-white transition-all duration-200 rounded shadow-lg ${
                     product.stock > 0 
                       ? 'bg-primary hover:bg-secondary hover:scale-105' 
@@ -310,8 +361,8 @@ const ProductDetails = () => {
                   }`}
                   disabled={product.stock === 0}
                 >
-                Add to Cart
-              </button>
+                  Add to Cart
+                </button>
                 <button 
                   className={`px-6 py-2 font-semibold text-white transition-all duration-200 rounded shadow-lg ${
                     product.stock > 0 
@@ -320,8 +371,8 @@ const ProductDetails = () => {
                   }`}
                   disabled={product.stock === 0}
                 >
-                Buy Now
-              </button>
+                  Buy Now
+                </button>
             </div>
             </div>
           </div>
