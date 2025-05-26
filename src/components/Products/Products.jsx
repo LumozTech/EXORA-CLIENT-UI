@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 const Products = ({ products = [], loading = false, title = "Our Products" }) => {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, buyNow } = useCart();
 
   // Format price
   const formatPrice = (price) => {
@@ -19,6 +19,13 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
     e.stopPropagation(); // Prevent navigation when clicking add to cart
     if (product.stock === 0) return;
     await addToCart(product.productId, 1, 'M');
+  };
+
+  // Handle buy now
+  const handleBuyNow = async (e, product) => {
+    e.stopPropagation(); // Prevent navigation when clicking buy now
+    if (product.stock === 0) return;
+    await buyNow(product.productId, 1, 'M');
   };
 
   if (loading) {
@@ -135,9 +142,10 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
                           ? 'bg-secondary hover:bg-primary' 
                           : 'bg-gray-400 cursor-not-allowed'
                       }`}
+                      onClick={(e) => handleBuyNow(e, product)}
                       disabled={product.stock === 0}
                     >
-                      View Details
+                      Buy Now
                     </button>
                   </div>
                 </div>

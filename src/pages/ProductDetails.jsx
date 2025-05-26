@@ -30,7 +30,7 @@ const ProductDetails = () => {
     productName: "",
   });
   const [userReviewStatus, setUserReviewStatus] = useState(null);
-  const { addToCart } = useCart();
+  const { addToCart, buyNow } = useCart();
   const [selectedSize, setSelectedSize] = useState('M');
   const [quantity, setQuantity] = useState(1);
 
@@ -180,6 +180,12 @@ const ProductDetails = () => {
   const handleAddToCart = async () => {
     if (!product) return;
     await addToCart(product.productId, quantity, selectedSize);
+  };
+
+  // Buy now handler
+  const handleBuyNow = async () => {
+    if (!product) return;
+    await buyNow(product.productId, quantity, selectedSize);
   };
 
   if (loading) {
@@ -364,6 +370,7 @@ const ProductDetails = () => {
                   Add to Cart
                 </button>
                 <button 
+                  onClick={handleBuyNow}
                   className={`px-6 py-2 font-semibold text-white transition-all duration-200 rounded shadow-lg ${
                     product.stock > 0 
                       ? 'bg-secondary hover:bg-primary hover:scale-105' 

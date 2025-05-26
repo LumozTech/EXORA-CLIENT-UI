@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const CartContext = createContext();
 
@@ -15,6 +16,7 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState({ items: [], totalAmount: 0 });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch cart data
   const fetchCart = async () => {
@@ -42,6 +44,7 @@ export const CartProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('Please login to add items to cart');
+        navigate('/login');
         return;
       }
 
@@ -58,12 +61,36 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Buy Now function - adds to cart and redirects to checkout
+  const buyNow = async (productId, quantity = 1, size = 'M') => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please login to proceed with purchase');
+        navigate('/login');
+        return;
+      }
+
+      await axios.post('http://localhost:5000/api/cart/add',
+        { productId, quantity, size },
+        { headers: { Authorization: `Bearer ${token}` }}
+      );
+      
+      await fetchCart();
+      navigate('/checkout');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error processing your request');
+      console.error('Error with buy now:', error);
+    }
+  };
+
   // Update item quantity
   const updateQuantity = async (productId, size, quantity) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('Please login to update cart');
+        navigate('/login');
         return;
       }
 
@@ -85,6 +112,7 @@ export const CartProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('Please login to remove items');
+        navigate('/login');
         return;
       }
 
@@ -106,6 +134,7 @@ export const CartProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('Please login to clear cart');
+        navigate('/login');
         return;
       }
 
@@ -134,6 +163,7 @@ export const CartProvider = ({ children }) => {
       cart,
       loading,
       addToCart,
+      buyNow,
       updateQuantity,
       removeFromCart,
       clearCart,
