@@ -100,8 +100,8 @@ const MensWear = () => {
         </div>
       ) : (
         <>
-          {/* Mens Wear Products with Pagination */}
-          <div data-aos="fade-up" className="container px-4 py-8 mx-auto">
+      {/* Mens Wear Products with Pagination */}
+      <div data-aos="fade-up" className="container px-4 py-8 mx-auto">
             {products.length === 0 ? (
               <div className="text-center">
                 <p className="text-xl text-gray-600 dark:text-gray-400">
@@ -109,19 +109,19 @@ const MensWear = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
-                {currentProducts.map((product, idx) => (
-                  <div
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
+          {currentProducts.map((product, idx) => (
+            <div
                     key={product.productId}
                     className="flex flex-col overflow-hidden bg-white rounded-lg shadow-md cursor-pointer dark:bg-gray-800 hover:shadow-xl transition-shadow duration-300"
-                    data-aos="zoom-in"
-                    data-aos-delay={idx * 100}
-                    onClick={() =>
+              data-aos="zoom-in"
+              data-aos-delay={idx * 100}
+              onClick={() =>
                       navigate(`/product/${product.productId}`, { state: { product } })
-                    }
-                  >
+              }
+            >
                     <div className="relative overflow-hidden h-56">
-                      <img
+              <img
                         src={product.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}
                         alt={product.productName}
                         className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
@@ -132,7 +132,7 @@ const MensWear = () => {
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-col items-center p-4">
+              <div className="flex flex-col items-center p-4">
                       <h3 className="mb-2 text-lg font-semibold">{product.productName}</h3>
                       <div className="flex items-center gap-2 mb-2">
                         <p className="font-bold text-primary">{formatPrice(product.price)}</p>
@@ -159,42 +159,42 @@ const MensWear = () => {
                         disabled={product.stock === 0}
                       >
                         {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                </button>
               </div>
+            </div>
+          ))}
+        </div>
             )}
 
-            {/* Pagination */}
+        {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center mt-8 space-x-2">
-                {Array.from({ length: totalPages }, (_, idx) => (
-                  <button
-                    key={idx + 1}
-                    onClick={() => handlePageChange(idx + 1)}
+        <div className="flex justify-center mt-8 space-x-2">
+          {Array.from({ length: totalPages }, (_, idx) => (
+            <button
+              key={idx + 1}
+              onClick={() => handlePageChange(idx + 1)}
                     className={`px-4 py-2 rounded transition-colors duration-200 ${
-                      currentPage === idx + 1
-                        ? "bg-primary text-white"
+                currentPage === idx + 1
+                  ? "bg-primary text-white"
                         : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-              </div>
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
+        </div>
             )}
-          </div>
+      </div>
 
-          {/* Banner Section */}
-          <div data-aos="zoom-in">
-            <Banner />
-          </div>
+      {/* Banner Section */}
+      <div data-aos="zoom-in">
+        <Banner />
+      </div>
 
-          {/* Subscribe Section */}
-          <div data-aos="fade-up" data-aos-delay="200">
-            <Subscribe />
-          </div>
+      {/* Subscribe Section */}
+      <div data-aos="fade-up" data-aos-delay="200">
+        <Subscribe />
+      </div>
         </>
       )}
       

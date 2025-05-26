@@ -54,12 +54,12 @@ const AddProduct = () => {
     
     // Show previews immediately
     files.forEach(file => {
-      const reader = new FileReader();
+          const reader = new FileReader();
       reader.onloadend = () => {
         setForm(prev => ({
-          ...prev,
+        ...prev,
           images: [...prev.images, reader.result].slice(0, 5),
-        }));
+      }));
       };
       reader.readAsDataURL(file);
     });

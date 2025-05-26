@@ -29,11 +29,11 @@ const Register = () => {
     if (file) {
       try {
         // Show preview immediately
-        const reader = new FileReader();
-        reader.onloadend = () => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
           setForm(prev => ({ ...prev, profilePic: reader.result }));
-        };
-        reader.readAsDataURL(file);
+      };
+      reader.readAsDataURL(file);
         
         // Store file for later upload
         setImageFile(file);
@@ -60,10 +60,10 @@ const Register = () => {
 
     try {
       // Validate passwords match
-      if (form.password !== form.confirmPassword) {
-        toast.error("Passwords do not match!");
-        return;
-      }
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
 
       let profilePicUrl = "";
       
@@ -90,14 +90,14 @@ const Register = () => {
       if (response.data) {
         toast.success("Registration successful! Please login.");
         // Reset form
-        setForm({
-          email: "",
-          firstName: "",
-          lastName: "",
-          password: "",
-          confirmPassword: "",
-          profilePic: "",
-        });
+      setForm({
+        email: "",
+        firstName: "",
+        lastName: "",
+        password: "",
+        confirmPassword: "",
+        profilePic: "",
+      });
         setImageFile(null);
         
         // Redirect to login after a short delay

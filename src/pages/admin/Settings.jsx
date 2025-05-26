@@ -45,21 +45,21 @@ const Settings = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(
-          "http://localhost:5000/api/users/profile",
-          {
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          }
-        );
-        setProfile({
-          firstName: res.data.user.firstName || "",
-          lastName: res.data.user.lastName || "",
-          email: res.data.user.email || "",
-          profilePic: res.data.user.profilePic || "",
-        });
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "http://localhost:5000/api/users/profile",
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      setProfile({
+        firstName: res.data.user.firstName || "",
+        lastName: res.data.user.lastName || "",
+        email: res.data.user.email || "",
+        profilePic: res.data.user.profilePic || "",
+      });
       } catch (error) {
         console.error("Error fetching profile:", error);
         toast.error("Failed to fetch profile");
@@ -85,7 +85,7 @@ const Settings = () => {
         reader.readAsDataURL(file);
         
         // Store file for later upload
-        setImageFile(file);
+      setImageFile(file);
       } catch (error) {
         console.error("Error handling profile picture:", error);
         toast.error("Failed to process image");

@@ -188,7 +188,7 @@ const ProductDetails = () => {
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
-          <h2 className="text-2xl font-bold text-red-500">Product not found</h2>
+        <h2 className="text-2xl font-bold text-red-500">Product not found</h2>
         </div>
       </div>
     );
@@ -210,23 +210,23 @@ const ProductDetails = () => {
               data-aos="zoom-in"
             />
             {product.images && product.images.length > 0 && (
-              <div className="flex gap-2">
-                {product.images.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
+            <div className="flex gap-2">
+              {product.images.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
                     alt={`${product.productName}-${idx + 1}`}
-                    className={`w-20 h-20 object-cover rounded cursor-pointer border-2 transition-all duration-300 ${
-                      selectedImage === idx
-                        ? "border-primary scale-110"
-                        : "border-transparent"
-                    }`}
-                    onClick={() => setSelectedImage(idx)}
-                    data-aos="fade-up"
-                    data-aos-delay={idx * 80}
-                  />
-                ))}
-              </div>
+                  className={`w-20 h-20 object-cover rounded cursor-pointer border-2 transition-all duration-300 ${
+                    selectedImage === idx
+                      ? "border-primary scale-110"
+                      : "border-transparent"
+                  }`}
+                  onClick={() => setSelectedImage(idx)}
+                  data-aos="fade-up"
+                  data-aos-delay={idx * 80}
+                />
+              ))}
+            </div>
             )}
           </div>
           {/* Details */}
@@ -250,13 +250,13 @@ const ProductDetails = () => {
               {product.lastPrice && product.lastPrice > product.price && (
                 <p className="text-sm text-gray-500 line-through">
                   {formatPrice(product.lastPrice)}
-                </p>
+            </p>
               )}
               
               <div className="space-y-2">
-                <p className="text-gray-700 dark:text-gray-300" data-aos="fade-up">
-                  {product.description}
-                </p>
+            <p className="text-gray-700 dark:text-gray-300" data-aos="fade-up">
+              {product.description}
+            </p>
                 
                 <div className="flex items-center gap-2">
                   <span className="font-semibold">Stock:</span>
@@ -297,10 +297,10 @@ const ProductDetails = () => {
                       Top Rated
                     </span>
                   )}
-                </div>
+              </div>
               </div>
 
-              {/* Action Buttons */}
+            {/* Action Buttons */}
               <div className="flex gap-4 mt-6">
                 <button 
                   className={`px-6 py-2 font-semibold text-white transition-all duration-200 rounded shadow-lg ${
@@ -310,8 +310,8 @@ const ProductDetails = () => {
                   }`}
                   disabled={product.stock === 0}
                 >
-                  Add to Cart
-                </button>
+                Add to Cart
+              </button>
                 <button 
                   className={`px-6 py-2 font-semibold text-white transition-all duration-200 rounded shadow-lg ${
                     product.stock > 0 
@@ -320,9 +320,9 @@ const ProductDetails = () => {
                   }`}
                   disabled={product.stock === 0}
                 >
-                  Buy Now
-                </button>
-              </div>
+                Buy Now
+              </button>
+            </div>
             </div>
           </div>
         </div>
@@ -331,9 +331,9 @@ const ProductDetails = () => {
         <div className="mt-12" data-aos="fade-up">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="flex items-center gap-2 text-2xl font-bold">
+            <h3 className="flex items-center gap-2 text-2xl font-bold">
                 <FaRegSmile className="text-yellow-400" /> Customer Reviews
-              </h3>
+            </h3>
               <div className="flex items-center gap-2 mt-2">
                 <div className="flex text-yellow-400">
                   {[...Array(5)].map((_, i) => (
@@ -368,12 +368,12 @@ const ProductDetails = () => {
             </div>
             <div>
               {!userReviewStatus && (
-                <button
-                  onClick={() => setShowReviewModal(true)}
-                  className="px-4 py-2 text-white transition-colors rounded shadow bg-primary hover:bg-secondary"
-                >
+            <button
+              onClick={() => setShowReviewModal(true)}
+              className="px-4 py-2 text-white transition-colors rounded shadow bg-primary hover:bg-secondary"
+            >
                   Write a Review
-                </button>
+            </button>
               )}
               {userReviewStatus === 'pending' && (
                 <div className="flex items-center gap-2 px-4 py-2 text-yellow-600 bg-yellow-100 rounded dark:bg-yellow-900/30 dark:text-yellow-400">
@@ -390,22 +390,22 @@ const ProductDetails = () => {
               <p className="text-gray-500">No approved reviews yet. Be the first to review!</p>
             ) : (
               reviews.map((review) => (
-                <div
+              <div
                   key={review._id}
-                  className="p-4 bg-gray-100 rounded shadow dark:bg-gray-800"
-                  data-aos="fade-up"
-                >
+                className="p-4 bg-gray-100 rounded shadow dark:bg-gray-800"
+                data-aos="fade-up"
+              >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold">{review.email}</span>
-                      <span className="flex text-yellow-400">
+                  <span className="flex text-yellow-400">
                         {[...Array(5)].map((_, i) => (
                           <FaStar
                             key={i}
                             className={i < review.rating ? "text-yellow-400" : "text-gray-300"}
                           />
-                        ))}
-                      </span>
+                    ))}
+                  </span>
                     </div>
                     <span className="text-sm text-gray-500">
                       {new Date(review.createdAt).toLocaleDateString()}

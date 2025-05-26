@@ -19,7 +19,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 export const uploadMediaToSupabase = async (file, bucket = 'products') => {
   if (!file) {
     throw new Error("No file provided");
-  }
+    }
 
   // Validate bucket type
   if (!['products', 'profiles'].includes(bucket)) {

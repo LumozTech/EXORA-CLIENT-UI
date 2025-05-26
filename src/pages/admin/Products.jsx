@@ -495,19 +495,19 @@ const Products = () => {
                     <FaArrowLeft className="text-sm" /> Prev
                   </button>
                   <div className="flex gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => (
-                      <button
-                        key={i + 1}
-                        onClick={() => setPage(i + 1)}
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => setPage(i + 1)}
                         className={`px-3 py-1 rounded font-semibold min-w-[2rem] ${
-                          page === i + 1
-                            ? "bg-[#00796B] text-white"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
+                        page === i + 1
+                          ? "bg-[#00796B] text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
                   </div>
                   <button
                     onClick={handleNext}

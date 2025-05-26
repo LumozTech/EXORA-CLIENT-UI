@@ -169,9 +169,9 @@ const Reviews = () => {
             {/* Filters */}
             <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
-                <h2 className="text-xl font-semibold" style={{ color: PRIMARY }}>
-                  Review Management
-                </h2>
+              <h2 className="text-xl font-semibold" style={{ color: PRIMARY }}>
+                Review Management
+              </h2>
                 <select
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
@@ -223,86 +223,86 @@ const Reviews = () => {
                     </div>
 
                     {/* Reviews Table */}
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-full text-left align-middle">
-                        <thead>
-                          <tr>
-                            <th className="px-4 py-2">User</th>
-                            <th className="px-4 py-2">Rating</th>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-full text-left align-middle">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2">User</th>
+                    <th className="px-4 py-2">Rating</th>
                             <th className="px-4 py-2">Review</th>
-                            <th className="px-4 py-2">Date</th>
-                            <th className="px-4 py-2">Status</th>
-                            <th className="px-4 py-2">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                    <th className="px-4 py-2">Date</th>
+                    <th className="px-4 py-2">Status</th>
+                    <th className="px-4 py-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
                           {productReviews.map((review) => (
-                            <tr
+                      <tr
                               key={review._id}
-                              className="border-t hover:bg-[#E0F2F1]/60 transition"
-                            >
+                        className="border-t hover:bg-[#E0F2F1]/60 transition"
+                      >
                               <td className="px-4 py-2">{review.email}</td>
                               <td className="px-4 py-2">
-                                <span className="flex items-center gap-1">
-                                  {[...Array(5)].map((_, i) => (
-                                    <FaStar
-                                      key={i}
+                          <span className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <FaStar
+                                key={i}
                                       className={i < review.rating ? "text-yellow-400" : "text-gray-300"}
-                                    />
-                                  ))}
-                                </span>
-                              </td>
+                              />
+                            ))}
+                          </span>
+                        </td>
                               <td className="px-4 py-2">{review.review}</td>
                               <td className="px-4 py-2">
                                 {new Date(review.createdAt).toLocaleDateString()}
-                              </td>
+                        </td>
                               <td className="px-4 py-2">
-                                <span
-                                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                     !review.hidden
-                                      ? "bg-green-200 text-green-800"
-                                      : "bg-red-200 text-red-800"
-                                  }`}
-                                >
+                                ? "bg-green-200 text-green-800"
+                                : "bg-red-200 text-red-800"
+                            }`}
+                          >
                                   {!review.hidden ? "Approved" : "Rejected"}
-                                </span>
-                              </td>
+                          </span>
+                        </td>
                               <td className="px-4 py-2">
-                                <div className="flex gap-2">
-                                  <button
+                          <div className="flex gap-2">
+                            <button
                                     onClick={() => handleUpdateVisibility(review._id, false, "approved")}
                                     disabled={processing === review._id || !review.hidden}
-                                    className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
-                                  >
+                              className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
+                            >
                                     {processing === review._id ? (
                                       <FaSpinner className="animate-spin" />
                                     ) : (
                                       <>
-                                        <FaCheck /> Approve
+                              <FaCheck /> Approve
                                       </>
                                     )}
-                                  </button>
-                                  <button
+                            </button>
+                            <button
                                     onClick={() => handleUpdateVisibility(review._id, true, "rejected")}
                                     disabled={processing === review._id || review.hidden}
-                                    className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50"
-                                  >
+                              className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50"
+                            >
                                     {processing === review._id ? (
                                       <FaSpinner className="animate-spin" />
                                     ) : (
                                       <>
-                                        <FaTimes /> Reject
+                              <FaTimes /> Reject
                                       </>
                                     )}
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                           ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                </tbody>
+              </table>
+            </div>
+            </div>
                 );
               })
             )}
