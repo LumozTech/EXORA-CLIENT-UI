@@ -152,94 +152,94 @@ const Navbar = ({ handleOrderPopup }) => {
 
             {/* Auth/Profile section */}
             <div className="relative profile-dropdown">
-              {!user?.isLoggedIn ? (
-                <Link
-                  to="/login"
-                  className="px-5 py-2 ml-2 font-semibold text-white transition-all duration-200 rounded-full shadow-md bg-gradient-to-r from-primary to-secondary hover:scale-105"
+              <div>
+                <button
+                  className="flex items-center gap-2 px-2 py-1 transition-all duration-200 rounded-full hover:bg-primary/10 focus:outline-none"
+                  onClick={toggleProfileDropdown}
                 >
-                  Login
-                </Link>
-              ) : (
-                <div>
-                  <button
-                    className="flex items-center gap-2 px-2 py-1 transition-all duration-200 rounded-full hover:bg-primary/10 focus:outline-none"
-                    onClick={toggleProfileDropdown}
-                  >
-                    <img
-                      src={user.profile}
-                      alt="Profile"
-                      className="w-10 h-10 transition-all duration-200 border-2 rounded-full shadow-md border-primary hover:scale-105"
-                      onError={(e) => {
-                        e.target.src = placeholderProfile;
-                      }}
-                    />
-                    <span className="font-medium">{user.name || "User"}</span>
-                    <FaCaretDown
-                      className={`transition-transform duration-200 ${
-                        profileDropdown ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  {/* Dropdown */}
-                  <div
-                    className={`absolute right-0 mt-2 w-48 rounded-lg bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/10 transition-all duration-200 origin-top-right ${
-                      profileDropdown
-                        ? "scale-100 opacity-100 pointer-events-auto"
-                        : "scale-95 opacity-0 pointer-events-none"
+                  <img
+                    src={user?.profile || placeholderProfile}
+                    alt="Profile"
+                    className="w-10 h-10 transition-all duration-200 border-2 rounded-full shadow-md border-primary hover:scale-105"
+                    onError={(e) => {
+                      e.target.src = placeholderProfile;
+                    }}
+                  />
+                  <span className="font-medium">{user?.name || "User"}</span>
+                  <FaCaretDown
+                    className={`transition-transform duration-200 ${
+                      profileDropdown ? "rotate-180" : ""
                     }`}
-                    style={{ zIndex: 9999 }}
-                  >
-                    <div className="flex flex-col py-2">
-                      <div className="px-4 py-2 font-semibold text-primary border-b border-gray-100 dark:border-gray-700">
-                        {user.name || "User"}
-                      </div>
-                      {user.role === "admin" && (
-                        <Link
-                          to="/admin/dashboard"
-                          className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
-                          onClick={() => setProfileDropdown(false)}
-                        >
-                          Admin Dashboard
-                        </Link>
-                      )}
+                  />
+                </button>
+                {/* Dropdown */}
+                <div
+                  className={`absolute right-0 mt-2 w-48 rounded-lg bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/10 transition-all duration-200 origin-top-right ${
+                    profileDropdown
+                      ? "scale-100 opacity-100 pointer-events-auto"
+                      : "scale-95 opacity-0 pointer-events-none"
+                  }`}
+                  style={{ zIndex: 9999 }}
+                >
+                  <div className="flex flex-col py-2">
+                    <div className="px-4 py-2 font-semibold text-primary border-b border-gray-100 dark:border-gray-700">
+                      {user?.name || "User"}
+                    </div>
+                    {user?.role === "admin" && (
                       <Link
-                        to="/profile/edit"
+                        to="/admin/dashboard"
                         className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
                         onClick={() => setProfileDropdown(false)}
                       >
-                        My Profile
+                        Admin Dashboard
                       </Link>
-                      <Link
-                        to="/wishlist"
-                        className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
-                        onClick={() => setProfileDropdown(false)}
-                      >
-                        Wishlist
-                      </Link>
-                      <Link
-                        to="/cart"
-                        className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
-                        onClick={() => setProfileDropdown(false)}
-                      >
-                        Cart
-                      </Link>
-                      <Link
-                        to="/orders"
-                        className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
-                        onClick={() => setProfileDropdown(false)}
-                      >
-                        My Orders
-                      </Link>
+                    )}
+                    <Link
+                      to="/profile/edit"
+                      className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                      onClick={() => setProfileDropdown(false)}
+                    >
+                      My Profile
+                    </Link>
+                    <Link
+                      to="/wishlist"
+                      className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                      onClick={() => setProfileDropdown(false)}
+                    >
+                      Wishlist
+                    </Link>
+                    <Link
+                      to="/cart"
+                      className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                      onClick={() => setProfileDropdown(false)}
+                    >
+                      Cart
+                    </Link>
+                    <Link
+                      to="/orders"
+                      className="px-4 py-2 text-gray-700 transition-all dark:text-gray-200 hover:bg-primary/10"
+                      onClick={() => setProfileDropdown(false)}
+                    >
+                      My Orders
+                    </Link>
+                    <Link
+                      to="/login"
+                      className="px-4 py-2 text-left text-blue-500 transition-all hover:bg-blue-50 dark:hover:bg-blue-900/30 border-t border-gray-100 dark:border-gray-700"
+                      onClick={() => setProfileDropdown(false)}
+                    >
+                      Login
+                    </Link>
+                    {user?.isLoggedIn && (
                       <button
                         className="px-4 py-2 text-left text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/30 border-t border-gray-100 dark:border-gray-700"
                         onClick={handleLogout}
                       >
                         Logout
                       </button>
-                    </div>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
