@@ -9,6 +9,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
+import { useCart } from "../context/CartContext";
+import axios from "axios";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -43,25 +45,114 @@ const ProceedToCheckout = () => {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [showFailed, setShowFailed] = useState(false);
-
+  const [orderDetails, setOrderDetails] = useState(null);
+  
   const navigate = useNavigate();
+  const { cart, clearCart } = useCart();
 
   useEffect(() => {
     AOS.init({ duration: 700, once: true });
   }, []);
 
-  const handlePayment = (e) => {
-    e.preventDefault();
-    setProcessing(true);
-    setTimeout(() => {
-      setProcessing(false);
-      if (Math.random() > 0.3) {
-        setShowSuccess(true);
-      } else {
+  // Fetch order details when component mounts
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const response = await axios.post(
+          'http://localhost:5000/api/orders/quote',
+          {
+            orderedItems: cart.items.map(item => ({
+              productId: item.productId,
+              qty: item.quantity
+            }))
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        setOrderDetails(response.data);
+      } catch (error) {
+        console.error('Error fetching order details:', error);
         setShowFailed(true);
       }
-    }, 2000);
+    };
+
+    if (cart.items.length > 0) {
+      fetchOrderDetails();
+    }
+  }, [cart.items]);
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    setProcessing(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      // Prepare shipping address
+      const fullShippingAddress = `${shipping.address}, ${shipping.city}, ${shipping.postal}, ${shipping.country}`;
+
+      // Create order data
+      const orderData = {
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        address: fullShippingAddress,
+        orderedItems: cart.items.map(item => ({
+          productId: item.productId,
+          qty: item.quantity
+        })),
+        paymentMethod: paymentMethod
+      };
+
+      // Send order to backend
+      const response = await axios.post(
+        'http://localhost:5000/api/orders',
+        orderData,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data) {
+        setShowSuccess(true);
+        await clearCart(); // Clear the cart after successful order
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      setShowFailed(true);
+    } finally {
+      setProcessing(false);
+    }
   };
+
+  if (!orderDetails && cart.items.length === 0) {
+    return (
+      <div className="min-h-screen duration-200 bg-gradient-to-br from-blue-100 via-white to-pink-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 dark:text-white">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <h2 className="mb-4 text-2xl font-bold">Your cart is empty</h2>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-2 text-white transition-all rounded-full shadow bg-gradient-to-r from-primary to-secondary hover:scale-105"
+          >
+            Continue Shopping
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen duration-200 bg-gradient-to-br from-blue-100 via-white to-pink-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 dark:text-white">
@@ -232,23 +323,29 @@ const ProceedToCheckout = () => {
                 Order Summary
               </h3>
               <ul className="mb-2">
-                {orderSummary.items.map((item, idx) => (
+                {orderDetails?.orderedItems.map((item, idx) => (
                   <li
                     key={idx}
                     className="flex justify-between mb-1 text-gray-700 dark:text-gray-300"
                   >
                     <span>
                       {item.name}{" "}
-                      <span className="text-xs text-gray-400">x{item.qty}</span>
+                      <span className="text-xs text-gray-400">x{item.quantity}</span>
                     </span>
-                    <span>Rs. {item.price * item.qty}</span>
+                    <span>Rs. {item.price * item.quantity}</span>
                   </li>
                 ))}
               </ul>
               <div className="flex justify-between pt-2 mt-2 text-lg font-bold border-t">
                 <span>Total</span>
-                <span className="text-primary">Rs. {orderSummary.total}</span>
+                <span className="text-primary">Rs. {orderDetails?.total}</span>
               </div>
+              {orderDetails?.labelTotal > orderDetails?.total && (
+                <div className="flex justify-between mt-1 text-sm text-gray-500">
+                  <span>You Save</span>
+                  <span>Rs. {orderDetails.labelTotal - orderDetails.total}</span>
+                </div>
+              )}
             </div>
             {/* Payment Methods */}
             <form
@@ -356,9 +453,9 @@ const ProceedToCheckout = () => {
               )}
               <button
                 type="submit"
-                disabled={processing}
+                disabled={processing || !customer.name || !customer.email || !customer.phone || !shipping.address}
                 className={`w-full py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg transition-all ${
-                  processing
+                  processing || !customer.name || !customer.email || !customer.phone || !shipping.address
                     ? "opacity-60 cursor-not-allowed"
                     : "hover:scale-105"
                 }`}
@@ -375,7 +472,7 @@ const ProceedToCheckout = () => {
           <div className="flex flex-col items-center p-8 bg-white shadow-2xl dark:bg-gray-900 rounded-2xl animate-fade-in">
             <FaCheckCircle className="mb-4 text-6xl text-green-500" />
             <h2 className="mb-2 text-2xl font-bold text-green-700 dark:text-green-400">
-              Payment Successful!
+              Order Placed Successfully!
             </h2>
             <p className="mb-4 text-gray-700 dark:text-gray-200">
               Your order has been placed successfully.
@@ -398,7 +495,7 @@ const ProceedToCheckout = () => {
           <div className="flex flex-col items-center p-8 bg-white shadow-2xl dark:bg-gray-900 rounded-2xl animate-fade-in">
             <FaTimesCircle className="mb-4 text-6xl text-red-500" />
             <h2 className="mb-2 text-2xl font-bold text-red-700 dark:text-red-400">
-              Payment Failed
+              Order Failed
             </h2>
             <p className="mb-4 text-gray-700 dark:text-gray-200">
               Something went wrong. Please try again.

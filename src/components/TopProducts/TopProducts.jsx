@@ -13,9 +13,9 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
 
   if (loading) {
     return (
-      <div>
+      <div className="mb-12 mt-14">
         <div className="container">
-          <div className="text-left mb-24">
+          <div className="text-center mb-10 max-w-[600px] mx-auto">
             <p data-aos="fade-up" className="text-sm text-primary">
               Top Rated Products for you
             </p>
@@ -33,9 +33,9 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
 
   if (!products.length) {
     return (
-      <div>
+      <div className="mb-12 mt-14">
         <div className="container">
-          <div className="text-left mb-24">
+          <div className="text-center mb-10 max-w-[600px] mx-auto">
             <p data-aos="fade-up" className="text-sm text-primary">
               Top Rated Products for you
             </p>
@@ -52,10 +52,10 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
   }
 
   return (
-    <div>
+    <div className="mb-12 mt-14">
       <div className="container">
         {/* Header section */}
-        <div className="text-left mb-24">
+        <div className="text-center mb-10 max-w-[600px] mx-auto">
           <p data-aos="fade-up" className="text-sm text-primary">
             Top Rated Products for you
           </p>
@@ -67,47 +67,57 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
           </p>
         </div>
         {/* Body section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 md:gap-5 place-items-center">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
           {products.map((product, index) => (
             <div
               key={product.productId}
+              className="flex flex-col items-center overflow-hidden bg-white rounded-lg shadow-md cursor-pointer dark:bg-gray-800 hover:shadow-xl transition-shadow duration-300"
               data-aos="zoom-in"
-              className="rounded-2xl bg-white dark:bg-gray-800 hover:bg-black/80 dark:hover:bg-primary hover:text-white relative shadow-xl duration-300 group max-w-[300px]"
+              data-aos-delay={index * 100}
               onClick={() => navigate(`/product/${product.productId}`, { state: { product } })}
             >
-              {/* image section */}
-              <div className="h-[100px]">
+              <div className="relative overflow-hidden h-56 w-full">
                 <img
-                  src={product.images?.[0] || 'https://via.placeholder.com/140x140?text=No+Image'}
+                  src={product.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}
                   alt={product.productName}
-                  className="max-w-[140px] block mx-auto transform -translate-y-20 group-hover:scale-105 duration-300 drop-shadow-md"
+                  className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
                 />
+                {product.stock === 0 && (
+                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center">
+                    <span className="px-4 py-2 bg-red-500 text-white rounded">Out of Stock</span>
+                  </div>
+                )}
               </div>
-              {/* details section */}
-              <div className="p-4 text-center">
-                {/* star rating */}
-                <div className="w-full flex items-center justify-center gap-1">
-                  <FaStar className="text-yellow-500" />
-                  <FaStar className="text-yellow-500" />
-                  <FaStar className="text-yellow-500" />
-                  <FaStar className="text-yellow-500" />
-                  <FaStar className="text-yellow-500" />
+              <div className="flex flex-col items-center p-4 w-full">
+                <div className="flex items-center justify-center gap-1 mb-2">
+                  <FaStar className="text-yellow-400" />
+                  <FaStar className="text-yellow-400" />
+                  <FaStar className="text-yellow-400" />
+                  <FaStar className="text-yellow-400" />
+                  <FaStar className="text-yellow-400" />
                 </div>
-                <h1 className="text-xl font-bold">{product.productName}</h1>
-                <div className="flex justify-center items-center gap-2 my-2">
-                  <p className="font-bold group-hover:text-white duration-300">{formatPrice(product.price)}</p>
+                <h3 className="mb-2 text-lg font-semibold">{product.productName}</h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="font-bold text-primary">{formatPrice(product.price)}</p>
                   {product.lastPrice && product.lastPrice > product.price && (
-                    <p className="text-sm text-gray-500 line-through group-hover:text-white/70">
+                    <p className="text-sm text-gray-500 line-through">
                       {formatPrice(product.lastPrice)}
                     </p>
                   )}
                 </div>
-                <p className="text-gray-500 group-hover:text-white duration-300 text-sm line-clamp-2">
-                  {product.description || "Experience premium quality and style with this amazing product"}
-                </p>
-                <button
-                  className={`bg-primary hover:scale-105 duration-300 text-white py-1 px-4 rounded-full mt-4 group-hover:bg-white group-hover:text-primary ${
-                    product.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                <div className="flex gap-2 mb-2">
+                  {product.isBestSelling && (
+                    <span className="px-2 py-1 text-xs text-white bg-green-500 rounded">Best Seller</span>
+                  )}
+                  {product.isTopRated && (
+                    <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
+                  )}
+                </div>
+                <button 
+                  className={`px-4 py-2 text-white transition-colors rounded ${
+                    product.stock > 0 
+                      ? 'bg-primary hover:bg-secondary' 
+                      : 'bg-gray-400 cursor-not-allowed'
                   }`}
                   onClick={(e) => {
                     e.stopPropagation();

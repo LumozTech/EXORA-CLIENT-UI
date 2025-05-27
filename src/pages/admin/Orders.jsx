@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaSearch,
-  FaCheck,
-  FaTimes,
-  FaTruck,
-  FaEllipsisV,
   FaEye,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
+import axios from "axios";
 import SlideBar from "../../components/admin/SlideBar";
 import AdminNavbar from "../../components/admin/Navbar";
 
@@ -14,59 +12,47 @@ const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
 const CARD_BORDER = "#CBD5E0";
 
-// Example order data
-const initialOrders = [
-  {
-    id: "ORD-001",
-    user: "Nimal",
-    product: "Classic Polo Shirt",
-    amount: "Rs. 2,000",
-    status: "Delivered",
-    date: "2025-05-20",
-    address: "123 Main St, Colombo",
-    phone: "0771234567",
-    note: "Please deliver after 5pm.",
-  },
-  {
-    id: "ORD-002",
-    user: "Kasun",
-    product: "Denim Jeans",
-    amount: "Rs. 2,800",
-    status: "Pending",
-    date: "2025-05-19",
-    address: "456 Lake Rd, Kandy",
-    phone: "0779876543",
-    note: "",
-  },
-  {
-    id: "ORD-003",
-    user: "Sahan",
-    product: "Formal Suit",
-    amount: "Rs. 8,500",
-    status: "Shipped",
-    date: "2025-05-18",
-    address: "789 Hill St, Galle",
-    phone: "0712345678",
-    note: "Gift wrap, please.",
-  },
-];
-
 const ORDERS_PER_PAGE = 5;
 
 const Orders = () => {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [modalOrder, setModalOrder] = useState(null);
   const [modalStatus, setModalStatus] = useState("");
 
-  // Pagination and search
+  // Fetch orders from backend
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/orders', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setOrders(response.data);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  // Filter and paginate orders
   const filteredOrders = orders.filter(
     (order) =>
-      order.user.toLowerCase().includes(search.toLowerCase()) ||
-      order.product.toLowerCase().includes(search.toLowerCase()) ||
-      order.id.toLowerCase().includes(search.toLowerCase())
+      order.name.toLowerCase().includes(search.toLowerCase()) ||
+      order.orderId.toLowerCase().includes(search.toLowerCase()) ||
+      order.orderedItems.some(item => 
+        item.name.toLowerCase().includes(search.toLowerCase())
+      )
   );
+  
   const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
   const paginatedOrders = filteredOrders.slice(
     (page - 1) * ORDERS_PER_PAGE,
@@ -76,7 +62,7 @@ const Orders = () => {
   const handlePrev = () => setPage((p) => Math.max(1, p - 1));
   const handleNext = () => setPage((p) => Math.min(totalPages, p + 1));
 
-  React.useEffect(() => {
+  useEffect(() => {
     setPage(1);
   }, [search]);
 
@@ -86,14 +72,48 @@ const Orders = () => {
     setModalStatus(order.status);
   };
 
-  // Update order status from modal
-  const handleUpdateStatus = () => {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === modalOrder.id ? { ...o, status: modalStatus } : o
-      )
-    );
-    setModalOrder(null);
+  // Update order status
+  const handleUpdateStatus = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        'http://localhost:5000/api/orders/status',
+        {
+          orderId: modalOrder.orderId,
+          status: modalStatus
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      // Update local state
+      setOrders(prev =>
+        prev.map(o =>
+          o.orderId === modalOrder.orderId ? { ...o, status: modalStatus } : o
+        )
+      );
+
+      toast.success('Order status updated successfully');
+      setModalOrder(null);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast.error('Failed to update order status');
+    }
+  };
+
+  // Calculate total amount for an order
+  const calculateOrderTotal = (items) => {
+    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -140,54 +160,69 @@ const Orders = () => {
                 <thead>
                   <tr>
                     <th className="px-4 py-2">Order ID</th>
-                    <th className="px-4 py-2">User</th>
-                    <th className="px-4 py-2">Product</th>
-                    <th className="px-4 py-2">Amount</th>
+                    <th className="px-4 py-2">Customer</th>
+                    <th className="px-4 py-2">Items</th>
+                    <th className="px-4 py-2">Total Amount</th>
                     <th className="px-4 py-2">Date</th>
+                    <th className="px-4 py-2">Payment</th>
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedOrders.length === 0 ? (
+                  {loading ? (
                     <tr>
-                      <td
-                        colSpan={7}
-                        className="py-6 text-center text-gray-500"
-                      >
+                      <td colSpan={8} className="py-6 text-center text-gray-500">
+                        Loading orders...
+                      </td>
+                    </tr>
+                  ) : paginatedOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="py-6 text-center text-gray-500">
                         No orders found.
                       </td>
                     </tr>
                   ) : (
                     paginatedOrders.map((order) => (
                       <tr
-                        key={order.id}
+                        key={order.orderId}
                         className="border-t hover:bg-[#E0F2F1]/60 transition"
                         style={{ borderColor: CARD_BORDER }}
                       >
-                        <td className="px-4 py-2 align-middle">{order.id}</td>
-                        <td className="px-4 py-2 align-middle">{order.user}</td>
+                        <td className="px-4 py-2 align-middle">{order.orderId}</td>
+                        <td className="px-4 py-2 align-middle">{order.name}</td>
                         <td className="px-4 py-2 align-middle">
-                          {order.product}
+                          {order.orderedItems.map(item => item.name).join(", ")}
                         </td>
                         <td className="px-4 py-2 align-middle">
-                          {order.amount}
+                          Rs. {calculateOrderTotal(order.orderedItems).toLocaleString()}
                         </td>
-                        <td className="px-4 py-2 align-middle">{order.date}</td>
                         <td className="px-4 py-2 align-middle">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              order.status === "Delivered"
-                                ? "bg-green-200 text-green-800"
-                                : order.status === "Pending"
-                                ? "bg-yellow-200 text-yellow-800"
-                                : order.status === "Shipped"
-                                ? "bg-blue-200 text-blue-800"
-                                : order.status === "Cancelled"
-                                ? "bg-red-200 text-red-800"
-                                : ""
-                            }`}
-                          >
+                          {formatDate(order.date)}
+                        </td>
+                        <td className="px-4 py-2 align-middle">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            order.paymentStatus === "completed"
+                              ? "bg-green-200 text-green-800"
+                              : order.paymentStatus === "pending"
+                              ? "bg-yellow-200 text-yellow-800"
+                              : "bg-red-200 text-red-800"
+                          }`}>
+                            {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 align-middle">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            order.status === "Delivered"
+                              ? "bg-green-200 text-green-800"
+                              : order.status === "Preparing"
+                              ? "bg-yellow-200 text-yellow-800"
+                              : order.status === "Shipped"
+                              ? "bg-blue-200 text-blue-800"
+                              : order.status === "Cancelled"
+                              ? "bg-red-200 text-red-800"
+                              : "bg-gray-200 text-gray-800"
+                          }`}>
                             {order.status}
                           </span>
                         </td>
@@ -259,34 +294,49 @@ const Orders = () => {
                 Order Details
               </h3>
               <div className="mb-2">
-                <span className="font-semibold">Order ID:</span> {modalOrder.id}
+                <span className="font-semibold">Order ID:</span> {modalOrder.orderId}
               </div>
               <div className="mb-2">
-                <span className="font-semibold">User:</span> {modalOrder.user}
+                <span className="font-semibold">Customer:</span> {modalOrder.name}
               </div>
               <div className="mb-2">
-                <span className="font-semibold">Product:</span>{" "}
-                {modalOrder.product}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Amount:</span>{" "}
-                {modalOrder.amount}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Date:</span> {modalOrder.date}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Address:</span>{" "}
-                {modalOrder.address}
+                <span className="font-semibold">Email:</span> {modalOrder.email}
               </div>
               <div className="mb-2">
                 <span className="font-semibold">Phone:</span> {modalOrder.phone}
               </div>
-              {modalOrder.note && (
-                <div className="mb-2">
-                  <span className="font-semibold">Note:</span> {modalOrder.note}
+              <div className="mb-2">
+                <span className="font-semibold">Address:</span> {modalOrder.address}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold">Payment Method:</span>{" "}
+                {modalOrder.paymentMethod.toUpperCase()}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold">Payment Status:</span>{" "}
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                  modalOrder.paymentStatus === "completed"
+                    ? "bg-green-200 text-green-800"
+                    : modalOrder.paymentStatus === "pending"
+                    ? "bg-yellow-200 text-yellow-800"
+                    : "bg-red-200 text-red-800"
+                }`}>
+                  {modalOrder.paymentStatus.charAt(0).toUpperCase() + modalOrder.paymentStatus.slice(1)}
+                </span>
+              </div>
+              <div className="mb-4">
+                <span className="font-semibold">Items:</span>
+                <ul className="mt-2 ml-4 space-y-1">
+                  {modalOrder.orderedItems.map((item, index) => (
+                    <li key={index}>
+                      {item.name} - {item.quantity}x (Size: {item.size}) - Rs. {item.price * item.quantity}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 text-right font-semibold">
+                  Total: Rs. {calculateOrderTotal(modalOrder.orderedItems).toLocaleString()}
                 </div>
-              )}
+              </div>
               <div className="mb-4">
                 <span className="font-semibold">Status:</span>
                 <select
@@ -294,7 +344,8 @@ const Orders = () => {
                   value={modalStatus}
                   onChange={(e) => setModalStatus(e.target.value)}
                 >
-                  <option value="Pending">Pending</option>
+                  <option value="Preparing">Preparing</option>
+                  <option value="Processing">Processing</option>
                   <option value="Shipped">Shipped</option>
                   <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
