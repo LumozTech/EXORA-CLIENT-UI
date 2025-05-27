@@ -2,11 +2,20 @@ import React, { useState, useEffect } from "react";
 import {
   FaSearch,
   FaEye,
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaCreditCard,
+  FaBox,
+  FaTruck,
+  FaMoneyBillWave,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 import SlideBar from "../../components/admin/SlideBar";
 import AdminNavbar from "../../components/admin/Navbar";
+import adminBg from "../../assets/adminBg.jpg";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -120,7 +129,12 @@ const Orders = () => {
     <div
       className="flex min-h-screen"
       style={{
-        background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
+        backgroundImage: `url(${adminBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundBlendMode: 'overlay',
       }}
     >
       {/* Sidebar */}
@@ -132,15 +146,14 @@ const Orders = () => {
         <div className="mt-10 ml-6 mr-6">
           <AdminNavbar pageTitle="Orders" />
           <div
-            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl"
+            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30"
             style={{
-              background: CARD_BG,
               borderColor: CARD_BORDER,
               borderWidth: 1.5,
             }}
           >
             <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-xl font-semibold" style={{ color: PRIMARY }}>
+              <h2 className="text-xl font-semibold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
                 Order Management
               </h2>
               <div className="relative">
@@ -277,86 +290,162 @@ const Orders = () => {
         {modalOrder && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div
-              className="relative w-full max-w-md p-8 bg-white shadow-lg rounded-2xl"
+              className="relative w-full max-w-5xl p-8 bg-white/30 backdrop-blur-sm shadow-lg rounded-2xl"
               style={{ border: `2px solid ${CARD_BORDER}` }}
             >
               <button
-                className="absolute text-2xl text-gray-500 top-3 right-3 hover:text-red-500"
+                className="absolute text-2xl text-white top-3 right-3 hover:text-red-500"
                 onClick={() => setModalOrder(null)}
                 aria-label="Close"
               >
                 &times;
               </button>
               <h3
-                className="mb-4 text-xl font-bold text-center"
-                style={{ color: PRIMARY }}
+                className="mb-6 text-2xl font-bold text-center text-white"
+                style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
               >
                 Order Details
               </h3>
-              <div className="mb-2">
-                <span className="font-semibold">Order ID:</span> {modalOrder.orderId}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Customer:</span> {modalOrder.name}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Email:</span> {modalOrder.email}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Phone:</span> {modalOrder.phone}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Address:</span> {modalOrder.address}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Payment Method:</span>{" "}
-                {modalOrder.paymentMethod.toUpperCase()}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold">Payment Status:</span>{" "}
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  modalOrder.paymentStatus === "completed"
-                    ? "bg-green-200 text-green-800"
-                    : modalOrder.paymentStatus === "pending"
-                    ? "bg-yellow-200 text-yellow-800"
-                    : "bg-red-200 text-red-800"
-                }`}>
-                  {modalOrder.paymentStatus.charAt(0).toUpperCase() + modalOrder.paymentStatus.slice(1)}
-                </span>
-              </div>
-              <div className="mb-4">
-                <span className="font-semibold">Items:</span>
-                <ul className="mt-2 ml-4 space-y-1">
-                  {modalOrder.orderedItems.map((item, index) => (
-                    <li key={index}>
-                      {item.name} - {item.quantity}x (Size: {item.size}) - Rs. {item.price * item.quantity}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-2 text-right font-semibold">
-                  Total: Rs. {calculateOrderTotal(modalOrder.orderedItems).toLocaleString()}
+
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                {/* Left Column - Customer Info */}
+                <div className="p-6 border border-white/20 rounded-xl backdrop-blur-sm bg-white/10">
+                  <h4 className="mb-4 text-lg font-semibold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                    Customer Information
+                  </h4>
+                  <div className="space-y-4 text-white">
+                    <div className="flex items-center gap-3">
+                      <FaUser className="text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Name</p>
+                        <p className="font-semibold">{modalOrder.name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FaEnvelope className="text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Email</p>
+                        <p className="font-semibold">{modalOrder.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FaPhone className="text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Phone</p>
+                        <p className="font-semibold">{modalOrder.phone}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <FaMapMarkerAlt className="mt-1 text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Shipping Address</p>
+                        <p className="font-semibold">{modalOrder.address}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle Column - Order Info */}
+                <div className="p-6 border border-white/20 rounded-xl backdrop-blur-sm bg-white/10">
+                  <h4 className="mb-4 text-lg font-semibold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                    Order Information
+                  </h4>
+                  <div className="space-y-4 text-white">
+                    <div className="flex items-center gap-3">
+                      <FaBox className="text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Order ID</p>
+                        <p className="font-semibold">{modalOrder.orderId}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FaTruck className="text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Order Status</p>
+                        <select
+                          className="px-3 py-1 mt-1 text-sm font-semibold bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:border-white/50"
+                          value={modalStatus}
+                          onChange={(e) => setModalStatus(e.target.value)}
+                        >
+                          <option value="Preparing">Preparing</option>
+                          <option value="Processing">Processing</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FaCreditCard className="text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Payment Method</p>
+                        <p className="font-semibold">{modalOrder.paymentMethod.toUpperCase()}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FaMoneyBillWave className="text-white/70" />
+                      <div>
+                        <p className="text-sm text-white/70">Payment Status</p>
+                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                          modalOrder.paymentStatus === "completed"
+                            ? "bg-green-200 text-green-800"
+                            : modalOrder.paymentStatus === "pending"
+                            ? "bg-yellow-200 text-yellow-800"
+                            : "bg-red-200 text-red-800"
+                        }`}>
+                          {modalOrder.paymentStatus.charAt(0).toUpperCase() + modalOrder.paymentStatus.slice(1)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column - Order Items */}
+                <div className="p-6 border border-white/20 rounded-xl backdrop-blur-sm bg-white/10">
+                  <h4 className="mb-4 text-lg font-semibold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                    Order Items
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="max-h-[300px] overflow-y-auto pr-2 space-y-3">
+                      {modalOrder.orderedItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className="p-3 border border-white/20 rounded-lg backdrop-blur-sm bg-white/10"
+                        >
+                          <div className="flex items-center justify-between text-white">
+                            <div>
+                              <p className="font-semibold">{item.name}</p>
+                              <p className="text-sm text-white/70">
+                                Size: {item.size} | Quantity: {item.quantity}
+                              </p>
+                            </div>
+                            <p className="font-semibold">
+                              Rs. {(item.price * item.quantity).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pt-4 mt-4 border-t border-white/20">
+                      <div className="flex items-center justify-between text-white">
+                        <p className="text-lg font-semibold">Total Amount</p>
+                        <p className="text-xl font-bold">
+                          Rs. {calculateOrderTotal(modalOrder.orderedItems).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="mb-4">
-                <span className="font-semibold">Status:</span>
-                <select
-                  className="px-2 py-1 ml-2 border rounded"
-                  value={modalStatus}
-                  onChange={(e) => setModalStatus(e.target.value)}
+
+              <div className="flex justify-center mt-8">
+                <button
+                  className="px-6 py-2 font-semibold text-white transition rounded-lg bg-[#00796B] hover:bg-[#005B4F]"
+                  onClick={handleUpdateStatus}
                 >
-                  <option value="Preparing">Preparing</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
+                  Update Order Status
+                </button>
               </div>
-              <button
-                className="w-full py-2 mt-2 font-semibold text-white rounded-lg bg-[#00796B] hover:bg-[#005B4F] transition"
-                onClick={handleUpdateStatus}
-              >
-                Update Status
-              </button>
             </div>
           </div>
         )}

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { FaUserCircle, FaCamera } from "react-icons/fa";
 import { uploadMediaToSupabase, deleteMediaFromSupabase } from "../../utils/mediaUploads";
+import adminBg from "../../assets/adminBg.jpg";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -195,26 +196,35 @@ const Settings = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-[#E0F2F1] to-[#CBD5E0]">
-      <div className="w-64 min-h-screen bg-white shadow-md">
+    <div className="flex min-h-screen"
+      style={{
+        backgroundImage: `url(${adminBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundBlendMode: 'overlay',
+      }}
+    >
+      <div className="w-64 min-h-screen">
         <SlideBar />
       </div>
       
       <div className="flex flex-col flex-1 overflow-hidden">
-        <div className="bg-white shadow-sm">
+        <div className="bg-white/30 backdrop-blur-sm shadow-sm">
           <AdminNavbar pageTitle="Settings" />
         </div>
         
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto">
             <div 
-              className="p-8 bg-white border shadow-md rounded-2xl"
+              className="p-8 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30"
               style={{
                 borderColor: CARD_BORDER,
                 borderWidth: 1.5,
               }}
             >
-              <h2 className="mb-6 text-2xl font-bold" style={{ color: PRIMARY }}>
+              <h2 className="mb-6 text-2xl font-bold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
                 Admin Settings
               </h2>
               

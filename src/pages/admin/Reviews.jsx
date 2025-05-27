@@ -6,12 +6,17 @@ import {
   FaSearch,
   FaSpinner,
   FaFilter,
+  FaUser,
+  FaBox,
+  FaCalendar,
+  FaComment,
 } from "react-icons/fa";
 import SlideBar from "../../components/admin/SlideBar";
 import AdminNavbar from "../../components/admin/Navbar";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import adminBg from "../../assets/adminBg.jpg";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -27,6 +32,7 @@ const Reviews = () => {
   const [selectedProduct, setSelectedProduct] = useState("all");
   const [page, setPage] = useState(1);
   const [processing, setProcessing] = useState(null);
+  const [selectedReview, setSelectedReview] = useState(null);
 
   // Fetch reviews and products from backend
   useEffect(() => {
@@ -127,6 +133,17 @@ const Reviews = () => {
     };
   };
 
+  // Format date for display
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen">
@@ -146,7 +163,12 @@ const Reviews = () => {
     <div
       className="flex min-h-screen"
       style={{
-        background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
+        backgroundImage: `url(${adminBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundBlendMode: 'overlay',
       }}
     >
       <ToastContainer />
@@ -159,9 +181,8 @@ const Reviews = () => {
         <div className="mt-10 ml-6 mr-6">
           <AdminNavbar pageTitle="Reviews" />
           <div
-            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl"
+            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30"
             style={{
-              background: CARD_BG,
               borderColor: CARD_BORDER,
               borderWidth: 1.5,
             }}
@@ -169,7 +190,7 @@ const Reviews = () => {
             {/* Filters */}
             <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
-              <h2 className="text-xl font-semibold" style={{ color: PRIMARY }}>
+              <h2 className="text-xl font-semibold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
                 Review Management
               </h2>
                 <select
@@ -227,49 +248,50 @@ const Reviews = () => {
               <table className="w-full min-w-full text-left align-middle">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2">User</th>
-                    <th className="px-4 py-2">Rating</th>
-                            <th className="px-4 py-2">Review</th>
-                    <th className="px-4 py-2">Date</th>
-                    <th className="px-4 py-2">Status</th>
-                    <th className="px-4 py-2">Action</th>
+                    <th className="px-4 py-2 text-white">User</th>
+                    <th className="px-4 py-2 text-white">Rating</th>
+                    <th className="px-4 py-2 text-white">Review</th>
+                    <th className="px-4 py-2 text-white">Date</th>
+                    <th className="px-4 py-2 text-white">Status</th>
+                    <th className="px-4 py-2 text-white">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                          {productReviews.map((review) => (
-                      <tr
-                              key={review._id}
-                        className="border-t hover:bg-[#E0F2F1]/60 transition"
-                      >
-                              <td className="px-4 py-2">{review.email}</td>
-                              <td className="px-4 py-2">
-                          <span className="flex items-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <FaStar
-                                key={i}
-                                      className={i < review.rating ? "text-yellow-400" : "text-gray-300"}
-                              />
-                            ))}
-                          </span>
-                        </td>
-                              <td className="px-4 py-2">{review.review}</td>
-                              <td className="px-4 py-2">
-                                {new Date(review.createdAt).toLocaleDateString()}
-                        </td>
-                              <td className="px-4 py-2">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                    !review.hidden
-                                ? "bg-green-200 text-green-800"
-                                : "bg-red-200 text-red-800"
-                            }`}
-                          >
-                                  {!review.hidden ? "Approved" : "Rejected"}
-                          </span>
-                        </td>
-                              <td className="px-4 py-2">
-                          <div className="flex gap-2">
-                            <button
+                  {productReviews.map((review) => (
+                    <tr
+                      key={review._id}
+                      className="border-t hover:bg-[#E0F2F1]/60 transition cursor-pointer"
+                      onClick={() => setSelectedReview(review)}
+                    >
+                      <td className="px-4 py-2 text-white">{review.email}</td>
+                      <td className="px-4 py-2">
+                        <span className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar
+                              key={i}
+                              className={i < review.rating ? "text-yellow-400" : "text-gray-300"}
+                            />
+                          ))}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-white">{review.review}</td>
+                      <td className="px-4 py-2 text-white">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            !review.hidden
+                              ? "bg-green-200 text-green-800"
+                              : "bg-red-200 text-red-800"
+                          }`}
+                        >
+                          {!review.hidden ? "Approved" : "Rejected"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex gap-2">
+                          <button
                                     onClick={() => handleUpdateVisibility(review._id, false, "approved")}
                                     disabled={processing === review._id || !review.hidden}
                               className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
@@ -295,10 +317,10 @@ const Reviews = () => {
                                       </>
                                     )}
                             </button>
-                          </div>
-                        </td>
-                      </tr>
-                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -309,6 +331,148 @@ const Reviews = () => {
           </div>
         </div>
       </main>
+
+      {/* Review Details Modal */}
+      {selectedReview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            className="relative w-full max-w-3xl p-8 bg-white/30 backdrop-blur-sm shadow-lg rounded-2xl"
+            style={{ border: `2px solid ${CARD_BORDER}` }}
+          >
+            <button
+              className="absolute text-2xl text-gray-100 top-3 right-3 hover:text-red-500"
+              onClick={() => setSelectedReview(null)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+
+            <h3
+              className="mb-6 text-2xl font-bold text-center text-gray-100"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
+            >
+              Review Details
+            </h3>
+
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              {/* Left Column - User & Product Info */}
+              <div className="p-6 border border-white/20 rounded-xl backdrop-blur-sm bg-white/10">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <FaUser className="text-gray-200" />
+                      <h4 className="text-lg font-semibold text-gray-100" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                        User Information
+                      </h4>
+                    </div>
+                    <p className="text-sm text-gray-300">Email</p>
+                    <p className="font-semibold text-gray-100">{selectedReview.email}</p>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <FaBox className="text-gray-200" />
+                      <h4 className="text-lg font-semibold text-gray-100" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                        Product Information
+                      </h4>
+                    </div>
+                    <p className="text-sm text-gray-300">Product Name</p>
+                    <p className="font-semibold text-gray-100">{selectedReview.productName}</p>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <FaCalendar className="text-gray-200" />
+                      <h4 className="text-lg font-semibold text-gray-100" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                        Review Date
+                      </h4>
+                    </div>
+                    <p className="font-semibold text-gray-100">{formatDate(selectedReview.createdAt)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Review Content */}
+              <div className="p-6 border border-white/20 rounded-xl backdrop-blur-sm bg-white/10">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <FaStar className="text-yellow-400" />
+                      <h4 className="text-lg font-semibold text-gray-100" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                        Rating
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          className={`text-2xl ${
+                            i < selectedReview.rating ? "text-yellow-400" : "text-gray-400"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-2 text-lg font-semibold text-gray-100">
+                        ({selectedReview.rating}/5)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <FaComment className="text-gray-200" />
+                      <h4 className="text-lg font-semibold text-gray-100" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                        Review Content
+                      </h4>
+                    </div>
+                    <p className="p-4 text-gray-100 border border-white/20 rounded-lg backdrop-blur-sm bg-white/10">
+                      {selectedReview.review}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="mb-4 text-lg font-semibold text-gray-100" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                      Review Status
+                    </h4>
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          !selectedReview.hidden
+                            ? "bg-green-200 text-green-800"
+                            : "bg-red-200 text-red-800"
+                        }`}
+                      >
+                        {!selectedReview.hidden ? "Approved" : "Rejected"}
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            handleUpdateVisibility(selectedReview._id, false, "approved");
+                            setSelectedReview(null);
+                          }}
+                          disabled={processing === selectedReview._id || !selectedReview.hidden}
+                          className="flex items-center gap-1 px-3 py-1 text-sm font-semibold text-gray-100 bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
+                        >
+                          <FaCheck /> Approve
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleUpdateVisibility(selectedReview._id, true, "rejected");
+                            setSelectedReview(null);
+                          }}
+                          disabled={processing === selectedReview._id || selectedReview.hidden}
+                          className="flex items-center gap-1 px-3 py-1 text-sm font-semibold text-gray-100 bg-red-600 rounded hover:bg-red-700 disabled:opacity-50"
+                        >
+                          <FaTimes /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

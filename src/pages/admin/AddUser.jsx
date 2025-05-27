@@ -6,6 +6,7 @@ import { FaUserCircle, FaCamera, FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import adminBg from "../../assets/adminBg.jpg";
 // import uploadMediaToSupabase from "../../utils/mediaUpload";
 
 const PRIMARY = "#00796B";
@@ -106,7 +107,12 @@ const AddUser = () => {
     <div
       className="flex min-h-screen"
       style={{
-        background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
+        backgroundImage: `url(${adminBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundBlendMode: 'overlay',
       }}
     >
       <ToastContainer position="top-right" />
@@ -117,23 +123,22 @@ const AddUser = () => {
         <div className="mt-10 ml-6 mr-6">
           <AdminNavbar pageTitle="Add User" />
           <div
-            className="w-full p-8 mx-auto mt-8 mb-10 border shadow-md rounded-2xl" // <-- full width
+            className="w-full p-8 mx-auto mt-8 mb-10 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30"
             style={{
-              background: CARD_BG,
               borderColor: CARD_BORDER,
               borderWidth: 1.5,
             }}
           >
             <button
               onClick={handleBack}
-              className="flex items-center gap-2 mb-6 text-[#00796B] font-semibold hover:underline"
+              className="flex items-center gap-2 mb-6 text-white font-semibold hover:underline"
               type="button"
             >
               <FaArrowLeft /> Back to Users
             </button>
             <h2
-              className="mb-6 text-2xl font-bold text-center"
-              style={{ color: PRIMARY }}
+              className="mb-6 text-2xl font-bold text-center text-white"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
             >
               Add New User
             </h2>

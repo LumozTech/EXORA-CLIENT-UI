@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
+import adminBg from "../../assets/adminBg.jpg";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -102,7 +103,12 @@ const Users = () => {
     <div
       className="flex min-h-screen"
       style={{
-        background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
+        backgroundImage: `url(${adminBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundBlendMode: 'overlay',
       }}
     >
       {/* Sidebar */}
@@ -114,15 +120,14 @@ const Users = () => {
         <div className="mt-10 ml-6 mr-6">
           <AdminNavbar pageTitle="Users" />
           <div
-            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl"
+            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30"
             style={{
-              background: CARD_BG,
               borderColor: CARD_BORDER,
               borderWidth: 1.5,
             }}
           >
             <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-xl font-semibold" style={{ color: PRIMARY }}>
+              <h2 className="text-xl font-semibold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
                 User Information
               </h2>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

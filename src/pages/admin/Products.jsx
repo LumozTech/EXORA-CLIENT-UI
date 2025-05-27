@@ -20,6 +20,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { uploadMediaToSupabase, deleteMediaFromSupabase } from "../../utils/mediaUploads";
+import adminBg from "../../assets/adminBg.jpg";
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -313,7 +314,12 @@ const Products = () => {
     <div
       className="flex min-h-screen"
       style={{
-        background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
+        backgroundImage: `url(${adminBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundBlendMode: 'overlay',
       }}
     >
       <ToastContainer />
@@ -327,16 +333,15 @@ const Products = () => {
         <div className="mt-10 ml-6 mr-6">
           <AdminNavbar pageTitle="Products" />
           <div
-            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl"
+            className="p-6 mt-8 mb-10 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30"
             style={{
-              background: CARD_BG,
               borderColor: CARD_BORDER,
               borderWidth: 1.5,
             }}
           >
             {/* Header and Search */}
             <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-xl font-semibold" style={{ color: PRIMARY }}>
+              <h2 className="text-xl font-semibold text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
                 Product Management
               </h2>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -382,7 +387,6 @@ const Products = () => {
                     <tr className="border-b" style={{ borderColor: CARD_BORDER }}>
                       <th className="px-4 py-3">Image</th>
                       <th className="px-4 py-3">Name</th>
-                      <th className="px-4 py-3">ID</th>
                       <th className="px-4 py-3">Price</th>
                       <th className="px-4 py-3">Stock</th>
                       <th className="px-4 py-3">Sold</th>
@@ -394,7 +398,7 @@ const Products = () => {
                   <tbody>
                     {paginatedProducts.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="py-6 text-center text-gray-500">
+                        <td colSpan={8} className="py-6 text-center text-gray-500">
                           {search ? "No matching products found" : "No products available"}
                         </td>
                       </tr>
@@ -402,8 +406,9 @@ const Products = () => {
                       paginatedProducts.map((product) => (
                         <tr
                           key={product.productId}
-                          className="border-t hover:bg-[#E0F2F1]/60 transition"
+                          className="border-t hover:bg-[#E0F2F1]/60 transition cursor-pointer"
                           style={{ borderColor: CARD_BORDER }}
+                          onClick={() => setSelectedProduct(product)}
                         >
                           <td className="px-4 py-3">
                             {product.images?.length > 0 ? (
@@ -416,18 +421,15 @@ const Products = () => {
                               <FaBoxOpen className="text-2xl text-primary" />
                             )}
                           </td>
-                          <td className="px-4 py-3 font-semibold">
+                          <td className="px-4 py-3 font-semibold text-white">
                             {product.productName}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">
-                            {product.productId}
-                          </td>
-                          <td className="px-4 py-3 font-semibold">
+                          <td className="px-4 py-3 font-semibold text-white">
                             {formatPrice(product.price)}
                           </td>
-                          <td className="px-4 py-3">{product.stock}</td>
-                          <td className="px-4 py-3">{product.soldCount}</td>
-                          <td className="px-4 py-3 capitalize">
+                          <td className="px-4 py-3 text-white">{product.stock}</td>
+                          <td className="px-4 py-3 text-white">{product.soldCount}</td>
+                          <td className="px-4 py-3 capitalize text-white">
                             {product.category}
                           </td>
                           <td className="px-4 py-3">
@@ -441,7 +443,7 @@ const Products = () => {
                               {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
                             </span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleEditClick(product)}
@@ -526,68 +528,87 @@ const Products = () => {
         {selectedProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div
-              className="relative w-full max-w-md p-8 bg-white shadow-lg rounded-2xl"
+              className="relative w-full max-w-4xl p-8 bg-white/30 backdrop-blur-sm shadow-lg rounded-2xl"
               style={{ border: `2px solid ${CARD_BORDER}` }}
             >
               <button
-                className="absolute text-2xl text-gray-500 top-3 right-3 hover:text-red-500"
-                onClick={closeModal}
+                className="absolute text-2xl text-white top-3 right-3 hover:text-red-500"
+                onClick={() => setSelectedProduct(null)}
                 aria-label="Close"
               >
                 &times;
               </button>
-              <div className="flex flex-col items-center gap-4">
-                {selectedProduct.images?.length > 0 ? (
-                  <img
-                    src={selectedProduct.images[0]}
-                    alt={selectedProduct.productName}
-                    className="object-cover w-32 h-32 border border-gray-300 rounded-lg"
-                  />
-                ) : (
-                  <FaBoxOpen className="w-32 h-32 text-primary" />
-                )}
-                <h3 className="mt-2 text-2xl font-bold text-center">
-                  {selectedProduct.productName}
-                </h3>
-                <div className="w-full space-y-3">
-                  <div className="flex items-center gap-2">
-                    <FaTag className="text-gray-500" />
-                    <span className="font-semibold">Product ID:</span>
-                    <span>{selectedProduct.productId}</span>
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                {/* Left Column - Images */}
+                <div className="flex flex-col items-center gap-4">
+                  {selectedProduct.images?.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedProduct.images.map((img, idx) => (
+                        <img
+                          key={idx}
+                          src={img}
+                          alt={`${selectedProduct.productName} ${idx + 1}`}
+                          className="object-cover w-full h-40 border border-gray-300 rounded-lg"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <FaBoxOpen className="w-32 h-32 text-white" />
+                  )}
+                </div>
+                {/* Right Column - Details */}
+                <div className="space-y-4 text-white">
+                  <h3 className="text-2xl font-bold" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                    {selectedProduct.productName}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-semibold">Product ID:</p>
+                      <p className="text-sm">{selectedProduct.productId}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Category:</p>
+                      <p className="capitalize">{selectedProduct.category}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Current Price:</p>
+                      <p>{formatPrice(selectedProduct.price)}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Previous Price:</p>
+                      <p>{formatPrice(selectedProduct.lastPrice)}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Stock:</p>
+                      <p>{selectedProduct.stock}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Sold:</p>
+                      <p>{selectedProduct.soldCount}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Price:</span>
-                    <span>{formatPrice(selectedProduct.price)}</span>
+                  <div>
+                    <p className="font-semibold">Alternative Names:</p>
+                    <p>{selectedProduct.altNames?.join(", ") || "None"}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Previous Price:</span>
-                    <span>{formatPrice(selectedProduct.lastPrice)}</span>
+                  <div>
+                    <p className="font-semibold">Description:</p>
+                    <p className="text-sm">{selectedProduct.description}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <FaBoxes className="text-gray-500" />
-                    <span className="font-semibold">Stock:</span>
-                    <span>{selectedProduct.stock}</span>
+                  <div className="flex gap-4">
+                    <div>
+                      <p className="font-semibold">Best Selling:</p>
+                      <p>{selectedProduct.isBestSelling ? "Yes" : "No"}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Top Rated:</p>
+                      <p>{selectedProduct.isTopRated ? "Yes" : "No"}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Sold:</span>
-                    <span>{selectedProduct.soldCount}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Category:</span>
-                    <span className="capitalize">{selectedProduct.category}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Best Selling:</span>
-                    <span>{selectedProduct.isBestSelling ? "Yes" : "No"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Top Rated:</span>
-                    <span>{selectedProduct.isTopRated ? "Yes" : "No"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Status:</span>
+                  <div>
+                    <p className="font-semibold">Status:</p>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         selectedProduct.status === "active"
                           ? "bg-green-200 text-green-800"
                           : "bg-gray-300 text-gray-700"

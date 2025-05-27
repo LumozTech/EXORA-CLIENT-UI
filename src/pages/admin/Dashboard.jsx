@@ -1,6 +1,7 @@
 import React from "react";
 import SlideBar from "../../components/admin/SlideBar";
 import AdminNavbar from "../../components/admin/Navbar";
+import adminBg from "../../assets/adminBg.jpg";
 import {
   FaUsers,
   FaBoxOpen,
@@ -127,7 +128,12 @@ const Dashboard = () => {
     <div
       className="flex min-h-screen"
       style={{
-        background: "linear-gradient(135deg, #E0F2F1 0%, #CBD5E0 100%)",
+        backgroundImage: `url(${adminBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Dark overlay
+        backgroundBlendMode: 'overlay',
       }}
     >
       {/* Sidebar */}
@@ -143,9 +149,8 @@ const Dashboard = () => {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className={`rounded-2xl shadow-md p-6 flex items-center gap-4 border`}
+                className={`rounded-2xl shadow-md p-6 flex items-center gap-4 border backdrop-blur-sm bg-white/30 dark:bg-gray-800/30`}
                 style={{
-                  background: CARD_BG,
                   borderColor: CARD_BORDER,
                   borderWidth: 1.5,
                 }}
@@ -153,12 +158,12 @@ const Dashboard = () => {
                 <div>{stat.icon}</div>
                 <div>
                   <div
-                    className="text-2xl font-bold"
-                    style={{ color: PRIMARY }}
+                    className="text-2xl font-bold text-white"
+                    style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
                   >
                     {stat.value}
                   </div>
-                  <div className="text-gray-700 dark:text-gray-300">
+                  <div className="text-gray-100">
                     {stat.label}
                   </div>
                 </div>
@@ -168,7 +173,7 @@ const Dashboard = () => {
           {/* Graphs */}
           <div className="grid grid-cols-1 gap-8 mb-10 md:grid-cols-2">
             <div
-              className="flex flex-col items-center w-full p-6 bg-white border shadow-md rounded-2xl"
+              className="flex flex-col items-center w-full p-6 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30 dark:bg-gray-800/30"
               style={{
                 borderColor: CARD_BORDER,
                 borderWidth: 1.5,
@@ -177,8 +182,8 @@ const Dashboard = () => {
               }}
             >
               <h2
-                className="mb-4 text-lg font-semibold"
-                style={{ color: PRIMARY }}
+                className="mb-4 text-lg font-semibold text-white"
+                style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
               >
                 User Growth (Last 6 Months)
               </h2>
@@ -187,7 +192,17 @@ const Dashboard = () => {
                   data={userGrowthData}
                   options={{
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } },
+                    scales: { 
+                      y: { 
+                        beginAtZero: true,
+                        ticks: { color: '#fff' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                      },
+                      x: {
+                        ticks: { color: '#fff' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                      }
+                    },
                     responsive: false,
                     maintainAspectRatio: false,
                   }}
@@ -197,7 +212,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div
-              className="flex flex-col items-center w-full p-6 bg-white border shadow-md rounded-2xl"
+              className="flex flex-col items-center w-full p-6 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30 dark:bg-gray-800/30"
               style={{
                 borderColor: CARD_BORDER,
                 borderWidth: 1.5,
@@ -206,8 +221,8 @@ const Dashboard = () => {
               }}
             >
               <h2
-                className="mb-4 text-lg font-semibold"
-                style={{ color: PRIMARY }}
+                className="mb-4 text-lg font-semibold text-white"
+                style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
               >
                 Order Status Distribution
               </h2>
@@ -215,7 +230,12 @@ const Dashboard = () => {
                 <Doughnut
                   data={orderStatusData}
                   options={{
-                    plugins: { legend: { position: "bottom" } },
+                    plugins: { 
+                      legend: { 
+                        position: "bottom",
+                        labels: { color: '#fff' }
+                      }
+                    },
                     cutout: "70%",
                     responsive: false,
                     maintainAspectRatio: false,
@@ -228,23 +248,22 @@ const Dashboard = () => {
           </div>
           {/* Top Products Table */}
           <div
-            className="p-6 mb-10 border shadow-md rounded-2xl"
+            className="p-6 mb-10 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30 dark:bg-gray-800/30"
             style={{
-              background: CARD_BG,
               borderColor: CARD_BORDER,
               borderWidth: 1.5,
             }}
           >
             <h2
-              className="mb-4 text-xl font-semibold"
-              style={{ color: PRIMARY }}
+              className="mb-4 text-xl font-semibold text-white"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
             >
               Top Selling Products
             </h2>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-left">
+              <table className="min-w-full text-left text-white">
                 <thead>
-                  <tr>
+                  <tr className="border-b border-white/10">
                     <th className="px-4 py-2">Product</th>
                     <th className="px-4 py-2">Sold</th>
                     <th className="px-4 py-2">Stock Left</th>
@@ -254,8 +273,7 @@ const Dashboard = () => {
                   {topProducts.map((product) => (
                     <tr
                       key={product.id}
-                      className="border-t"
-                      style={{ borderColor: CARD_BORDER }}
+                      className="border-t border-white/10"
                     >
                       <td className="px-4 py-2">{product.name}</td>
                       <td className="px-4 py-2">{product.sold}</td>
@@ -268,23 +286,22 @@ const Dashboard = () => {
           </div>
           {/* Recent Orders Table */}
           <div
-            className="p-6 border shadow-md rounded-2xl"
+            className="p-6 border shadow-md rounded-2xl backdrop-blur-sm bg-white/30 dark:bg-gray-800/30"
             style={{
-              background: CARD_BG,
               borderColor: CARD_BORDER,
               borderWidth: 1.5,
             }}
           >
             <h2
-              className="mb-4 text-xl font-semibold"
-              style={{ color: PRIMARY }}
+              className="mb-4 text-xl font-semibold text-white"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
             >
               Recent Orders
             </h2>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-left">
+              <table className="min-w-full text-left text-white">
                 <thead>
-                  <tr>
+                  <tr className="border-b border-white/10">
                     <th className="px-4 py-2">Order ID</th>
                     <th className="px-4 py-2">User</th>
                     <th className="px-4 py-2">Product</th>
@@ -296,8 +313,7 @@ const Dashboard = () => {
                   {recentOrders.map((order) => (
                     <tr
                       key={order.id}
-                      className="border-t"
-                      style={{ borderColor: CARD_BORDER }}
+                      className="border-t border-white/10"
                     >
                       <td className="px-4 py-2">{order.id}</td>
                       <td className="px-4 py-2">{order.user}</td>
