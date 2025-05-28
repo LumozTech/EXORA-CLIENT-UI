@@ -59,10 +59,8 @@ const Products = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/products', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
         setProducts(response.data.list || []);
       } catch (err) {
@@ -103,11 +101,11 @@ const Products = () => {
       const newStatus = product.status === "active" ? "inactive" : "active";
       
       await axios.put(
-        `http://localhost:5000/api/products/${productId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`,
         { status: newStatus },
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -205,7 +203,7 @@ const Products = () => {
       
       // Update product
       const response = await axios.put(
-        `http://localhost:5000/api/products/${editingProduct.productId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${editingProduct.productId}`,
         editForm,
         {
           headers: {
@@ -254,7 +252,7 @@ const Products = () => {
       }
       
       // Delete product from database
-      await axios.delete(`http://localhost:5000/api/products/${productId}`, {
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -7,6 +7,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import adminBg from "../../assets/adminBg.jpg";
+import { getApiUrl } from '../../config/api';
 // import uploadMediaToSupabase from "../../utils/mediaUpload";
 
 const PRIMARY = "#00796B";
@@ -75,10 +76,8 @@ const AddUser = () => {
     const token = localStorage.getItem("token");
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/users", user, {
-        headers: {
-          Authorization: "Bearer " + token, // token must be for an admin user
-        },
+      await axios.post(getApiUrl("/api/users"), user, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("User added successfully!");
       setFirstName("");

@@ -36,7 +36,7 @@ const Orders = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/orders', {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(response.data);
@@ -86,7 +86,7 @@ const Orders = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:5000/api/orders/status',
+        `${import.meta.env.VITE_BACKEND_URL}/api/orders/status`,
         {
           orderId: modalOrder.orderId,
           status: modalStatus

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
+import { getApiUrl } from '../config/api';
 import Banner from "../assets/website/orange-pattern.jpg";
 import Logo from "../assets/women/women4.jpg";
 import { FaGoogle, FaFacebookF, FaCamera, FaTimes } from "react-icons/fa";
@@ -79,7 +80,7 @@ const Register = () => {
       }
 
       // Register user
-      const response = await axios.post("http://localhost:5000/api/users/register", {
+      const response = await axios.post(getApiUrl("/api/users/register"), {
         email: form.email,
         firstName: form.firstName,
         lastName: form.lastName,

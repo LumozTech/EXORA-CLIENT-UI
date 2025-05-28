@@ -11,6 +11,7 @@ import Popup from "../components/Popup/Popup";
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getApiUrl } from '../config/api';
 
 const HomePage = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
   const [products, setProducts] = useState([]);
@@ -22,7 +23,7 @@ const HomePage = ({ orderPopup, setOrderPopup, handleOrderPopup }) => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/products');
+        const response = await axios.get(getApiUrl('/api/products'));
         const allProducts = response.data.list.filter(product => product.status === 'active');
         
         // Set all products

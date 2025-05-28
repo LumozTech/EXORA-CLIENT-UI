@@ -16,6 +16,7 @@ import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { getApiUrl } from '../config/api';
 
 const statusColors = {
   Delivered: "text-green-600",
@@ -93,7 +94,7 @@ const MyOrders = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:5000/api/orders', {
+        const response = await axios.get(getApiUrl('/api/orders'), {
           headers: { Authorization: `Bearer ${token}` }
         });
 

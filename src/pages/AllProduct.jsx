@@ -24,7 +24,7 @@ const AllProduct = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/products');
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
         // Filter only active products
         const activeProducts = response.data.list.filter(
           product => product.status === 'active'

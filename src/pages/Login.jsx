@@ -6,6 +6,7 @@ import Logo from "../assets/women/women4.jpg";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getApiUrl } from '../config/api';
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -23,7 +24,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/users/login", {
+      const res = await axios.post(getApiUrl("/api/users/login"), {
         email: form.email,
         password: form.password,
       });

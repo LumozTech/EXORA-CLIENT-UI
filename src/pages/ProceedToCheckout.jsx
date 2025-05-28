@@ -13,6 +13,7 @@ import { useCart } from "../context/CartContext";
 import axios from "axios";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { getApiUrl } from '../config/api';
 
 // Mock order summary (replace with real cart/total in production)
 const orderSummary = {
@@ -85,12 +86,13 @@ const ProceedToCheckout = () => {
         if (buyNowItem) return;
 
         const response = await axios.post(
-          'http://localhost:5000/api/orders/quote',
+          getApiUrl('/api/orders/quote'),
           {
-            orderedItems: cart.items.map(item => ({
+            items: cart.items.map(item => ({
               productId: item.productId,
               qty: item.quantity
-            }))
+            })),
+            shippingAddress: shipping
           },
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -106,7 +108,7 @@ const ProceedToCheckout = () => {
     if (!buyNowItem && cart.items.length > 0) {
       fetchOrderDetails();
     }
-  }, [cart.items, buyNowItem]);
+  }, [cart.items, buyNowItem, shipping]);
 
   const handlePayment = async (e) => {
     e.preventDefault();
@@ -143,7 +145,7 @@ const ProceedToCheckout = () => {
       };
 
       const response = await axios.post(
-        'http://localhost:5000/api/orders',
+        getApiUrl('/api/orders'),
         orderData,
         {
           headers: { Authorization: `Bearer ${token}` }

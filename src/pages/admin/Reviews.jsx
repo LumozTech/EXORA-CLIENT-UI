@@ -17,6 +17,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import adminBg from "../../assets/adminBg.jpg";
+import { getApiUrl } from '../../config/api';
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -41,10 +42,10 @@ const Reviews = () => {
         setLoading(true);
         const token = localStorage.getItem('token');
         const [reviewsRes, productsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/reviews", {
+          axios.get(getApiUrl("/api/reviews"), {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/products", {
+          axios.get(getApiUrl("/api/products"), {
             headers: { Authorization: `Bearer ${token}` },
           })
         ]);
@@ -68,7 +69,7 @@ const Reviews = () => {
       setProcessing(reviewId);
       const token = localStorage.getItem('token');
       const response = await axios.patch(
-        `http://localhost:5000/api/reviews/${reviewId}/visibility`,
+        getApiUrl(`/api/reviews/${reviewId}/visibility`),
         { hidden },
         {
           headers: {

@@ -8,6 +8,7 @@ import "aos/dist/aos.css";
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getApiUrl } from '../config/api';
 
 const Cart = () => {
   const [cart, setCart] = useState({ items: [], totalAmount: 0 });
@@ -32,7 +33,7 @@ const Cart = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:5000/api/cart', {
+      const response = await axios.get(getApiUrl('/api/cart'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCart(response.data);
@@ -48,7 +49,7 @@ const Cart = () => {
   const updateQuantity = async (productId, size, quantity) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/cart/update', 
+      await axios.put(getApiUrl('/api/cart/update'),
         { productId, size, quantity },
         { headers: { Authorization: `Bearer ${token}` }}
       );
@@ -64,7 +65,7 @@ const Cart = () => {
   const removeItem = async (productId, size) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/cart/remove/${productId}/${size}`, {
+      await axios.delete(getApiUrl(`/api/cart/remove/${productId}/${size}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       await fetchCart(); // Refresh cart data

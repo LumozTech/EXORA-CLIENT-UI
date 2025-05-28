@@ -6,6 +6,7 @@ import axios from "axios";
 import { FaUserCircle, FaCamera } from "react-icons/fa";
 import { uploadMediaToSupabase, deleteMediaFromSupabase } from "../../utils/mediaUploads";
 import adminBg from "../../assets/adminBg.jpg";
+import { getApiUrl } from '../../config/api';
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -48,7 +49,7 @@ const Settings = () => {
       try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "http://localhost:5000/api/users/profile",
+        getApiUrl("/api/users/profile"),
         {
           headers: {
             Authorization: "Bearer " + token,
@@ -129,7 +130,7 @@ const Settings = () => {
 
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        "http://localhost:5000/api/users/profile",
+        getApiUrl("/api/users/profile"),
         {
           firstName: profile.firstName,
           lastName: profile.lastName,
@@ -175,7 +176,7 @@ const Settings = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "http://localhost:5000/api/users/password",
+        getApiUrl("/api/users/password"),
         {
           currentPassword: password.current,
           newPassword: password.new,

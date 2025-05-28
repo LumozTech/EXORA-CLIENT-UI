@@ -8,6 +8,7 @@ import { uploadMediaToSupabase } from "../../utils/mediaUploads";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import adminBg from "../../assets/adminBg.jpg";
+import { getApiUrl } from '../../config/api';
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -156,11 +157,8 @@ const AddProduct = () => {
       }
 
       // Make API call
-      const response = await axios.post('http://localhost:5000/api/products', productData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await axios.post(getApiUrl('/api/products'), productData, {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       if (response.data) {

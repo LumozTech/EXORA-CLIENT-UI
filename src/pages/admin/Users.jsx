@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import { toast } from "react-toastify";
 import adminBg from "../../assets/adminBg.jpg";
+import { getApiUrl } from '../../config/api';
 
 const PRIMARY = "#00796B";
 const CARD_BG = "#fff";
@@ -32,10 +33,8 @@ const Users = () => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/users", {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
+        const res = await axios.get(getApiUrl("/api/users"), {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(res.data.list || []);
       } catch (err) {
@@ -54,14 +53,10 @@ const Users = () => {
   const handleToggleStatus = async (id, isBlocked) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(
-        `http://localhost:5000/api/users/${id}`,
+      await axios.put(
+        getApiUrl(`/api/users/${id}`),
         { isBlocked: !isBlocked },
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers((prev) =>
         prev.map((user) =>

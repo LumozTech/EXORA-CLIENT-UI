@@ -10,6 +10,7 @@ import "aos/dist/aos.css";
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getApiUrl } from '../config/api';
 
 const PRODUCTS_PER_PAGE = 9;
 
@@ -25,7 +26,7 @@ const Bestselling = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/products');
+        const response = await axios.get(getApiUrl('/api/products'));
         // Filter for best-selling and active products
         const bestsellingProducts = response.data.list.filter(
           product => product.isBestSelling && product.status === 'active'
