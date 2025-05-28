@@ -13,6 +13,12 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: false,
+        drop_debugger: true
+      }
+    },
     chunkSizeWarningLimit: 1600,
   },
   server: {
