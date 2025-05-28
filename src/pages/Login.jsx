@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Banner from "../assets/website/orange-pattern.jpg";
 import Logo from "../assets/women/women4.jpg";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaGoogle, FaFacebookF, FaEye, FaEyeSlash, FaUserPlus } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getApiUrl } from '../config/api';
@@ -14,10 +14,15 @@ const Login = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e) => {
@@ -104,46 +109,63 @@ const Login = () => {
             </div>
             <div>
               <label className="block mb-1 text-sm font-medium">Password</label>
-              <input
-                type="password"
-                name="password"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-primary dark:bg-gray-800"
-                value={form.password}
-                onChange={handleChange}
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <button
-              type="submit"
-              className={`w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary flex items-center justify-center ${
-                loading ? "opacity-60 cursor-not-allowed" : ""
-              }`}
-              disabled={loading}
-            >
-              {loading ? (
-                <svg
-                  className="w-5 h-5 mr-2 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-primary dark:bg-gray-800"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-primary"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  ></path>
-                </svg>
-              ) : null}
-              {loading ? "Logging in..." : "Login"}
-            </button>
+                  {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                type="submit"
+                className={`w-full py-2 font-semibold text-white transition-colors rounded bg-primary hover:bg-secondary flex items-center justify-center ${
+                  loading ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+                disabled={loading}
+              >
+                {loading ? (
+                  <svg
+                    className="w-5 h-5 mr-2 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    ></path>
+                  </svg>
+                ) : null}
+                {loading ? "Logging in..." : "Login"}
+              </button>
+              <Link
+                to="/register"
+                className="flex items-center justify-center w-full gap-2 py-2 font-semibold text-white transition-colors rounded bg-secondary hover:bg-primary"
+              >
+                <FaUserPlus /> Register Now
+              </Link>
+            </div>
           </form>
           <div className="flex items-center my-6">
             <div className="flex-grow border-t border-gray-300"></div>

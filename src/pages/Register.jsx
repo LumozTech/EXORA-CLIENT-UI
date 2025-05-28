@@ -80,7 +80,7 @@ const Register = () => {
       }
 
       // Register user
-      const response = await axios.post(getApiUrl("/api/users/register"), {
+      const response = await axios.post(getApiUrl("/api/users"), {
         email: form.email,
         firstName: form.firstName,
         lastName: form.lastName,
