@@ -136,6 +136,12 @@ const ProductDetails = () => {
     const token = localStorage.getItem('token');
     if (!token) {
       toast.error('Please login to add a review');
+      navigate('/login');
+      return;
+    }
+
+    if (!reviewForm.comment.trim()) {
+      toast.error('Please write your review');
       return;
     }
 
@@ -143,8 +149,8 @@ const ProductDetails = () => {
       const response = await axios.post(
         getApiUrl('/api/reviews'),
         {
-          productId: reviewForm.productId,
-          productName: reviewForm.productName,
+          productId: product._id,
+          productName: product.productName,
           rating: reviewForm.rating,
           review: reviewForm.comment
         },
@@ -168,13 +174,21 @@ const ProductDetails = () => {
         // Refresh reviews after submission
         const reviewsRes = await axios.get(getApiUrl('/api/reviews/customer-reviews'));
         const productReviews = reviewsRes.data.message.filter(
-          review => review.productId === reviewForm.productId && !review.hidden
+          review => review.productId === product._id && !review.hidden
         );
         setReviews(productReviews);
       }
     } catch (error) {
       console.error('Error submitting review:', error);
-      toast.error(error.response?.data?.message || 'Failed to submit review');
+      if (error.response?.status === 401) {
+        toast.error('Please login to add a review');
+        navigate('/login');
+      } else if (error.response?.status === 403) {
+        toast.error('You have already reviewed this product');
+        setShowReviewModal(false);
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to submit review');
+      }
     }
   };
 
@@ -510,6 +524,73 @@ const ProductDetails = () => {
         </div>
       </div>
       <Footer />
+      
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-lg p-8 bg-white shadow-2xl dark:bg-gray-900 rounded-2xl animate-fade-in">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-primary">Write a Review</h3>
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="text-2xl text-gray-500 hover:text-red-500"
+              >
+                &times;
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddReview} className="space-y-6">
+              {/* Rating Selection */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">Your Rating</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                      className="text-2xl transition-all"
+                    >
+                      <FaStar
+                        className={star <= reviewForm.rating ? "text-yellow-400" : "text-gray-300"}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Review Comment */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">Your Review</label>
+                <textarea
+                  value={reviewForm.comment}
+                  onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                  placeholder="Share your experience with this product..."
+                  className="w-full h-32 p-4 border border-gray-300 rounded-lg dark:border-gray-700 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(false)}
+                  className="px-6 py-2 font-semibold text-gray-700 transition-all bg-gray-100 rounded-full hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 font-semibold text-white transition-all rounded-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg hover:-translate-y-1"
+                >
+                  Submit Review
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
