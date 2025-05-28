@@ -13,7 +13,7 @@ import {
   FaTruck,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
-import Logo from "../../assets/logo.png";
+import Logo from "../../assets/logo-removebg-preview.png";
 
 const menuItems = [
   { name: "Dashboard", icon: <FaHome />, link: "/admin/dashboard" },
