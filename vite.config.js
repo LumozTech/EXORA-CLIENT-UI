@@ -21,6 +21,11 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1600,
   },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  },
   server: {
     port: 3000,
     strictPort: true,
