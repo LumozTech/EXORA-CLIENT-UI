@@ -74,17 +74,17 @@ const KidsWear = () => {
       
       {/* Kids Wear Hero Section */}
       <section
-        className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-yellow-100 via-pink-100 to-blue-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
+        className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-[#4d0708]/5 via-white to-[#4d0708]/5 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
         data-aos="fade-down"
       >
         <h1
-          className="mb-4 text-4xl font-bold md:text-5xl text-primary"
+          className="mb-4 text-4xl font-bold md:text-5xl text-[#4d0708]"
           data-aos="fade-up"
         >
           Kids Wear Collection
         </h1>
         <p
-          className="max-w-xl text-lg text-center text-gray-700 dark:text-gray-300"
+          className="max-w-xl text-lg text-center text-[#4d0708]/80 dark:text-[#d9cfd0]"
           data-aos="fade-up"
           data-aos-delay="100"
         >
@@ -97,7 +97,7 @@ const KidsWear = () => {
       {/* Loading State */}
       {loading ? (
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="w-16 h-16 border-4 border-t-4 rounded-full border-primary border-t-transparent animate-spin"></div>
+          <div className="w-16 h-16 border-4 border-t-4 rounded-full border-[#4d0708] border-t-transparent animate-spin"></div>
         </div>
       ) : (
         <>
@@ -105,7 +105,7 @@ const KidsWear = () => {
           <div data-aos="fade-up" className="container px-4 py-8 mx-auto">
             {products.length === 0 ? (
               <div className="text-center">
-                <p className="text-xl text-gray-600 dark:text-gray-400">
+                <p className="text-xl text-[#4d0708]/60 dark:text-[#d9cfd0]/60">
                   No kids wear products available at the moment.
                 </p>
               </div>
@@ -134,30 +134,30 @@ const KidsWear = () => {
                       )}
                     </div>
                     <div>
-                      <h3 className="font-semibold">{product.productName}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <h3 className="font-semibold text-[#4d0708] dark:text-[#d9cfd0]">{product.productName}</h3>
+                      <p className="text-sm text-[#4d0708]/60 dark:text-[#d9cfd0]/60">
                         {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
                       </p>
                       <div className="flex items-center gap-2 mb-2">
-                        <p className="font-bold text-primary">{formatPrice(product.price)}</p>
+                        <p className="font-bold text-[#4d0708]">{formatPrice(product.price)}</p>
                         {product.lastPrice && product.lastPrice > product.price && (
-                          <p className="text-sm text-gray-500 line-through">
+                          <p className="text-sm text-[#4d0708]/40 line-through">
                             {formatPrice(product.lastPrice)}
                           </p>
                         )}
                       </div>
                       <div className="flex gap-2 mb-2">
                         {product.isBestSelling && (
-                          <span className="px-2 py-1 text-xs text-white bg-green-500 rounded">Best Seller</span>
+                          <span className="px-2 py-1 text-xs text-[#d9cfd0] bg-[#4d0708] rounded">Best Seller</span>
                         )}
                         {product.isTopRated && (
-                          <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
+                          <span className="px-2 py-1 text-xs text-[#d9cfd0] bg-[#4d0708] rounded">Top Rated</span>
                         )}
                       </div>
                       <button
-                        className={`px-4 py-2 text-white transition-colors rounded-md ${
+                        className={`px-4 py-2 text-[#d9cfd0] transition-colors rounded-md ${
                           product.stock > 0 
-                            ? 'bg-primary hover:bg-secondary' 
+                            ? 'bg-[#4d0708] hover:bg-[#4d0708]/90' 
                             : 'bg-gray-400 cursor-not-allowed'
                         }`}
                         onClick={(e) => {
@@ -183,8 +183,8 @@ const KidsWear = () => {
                     onClick={() => handlePageChange(idx + 1)}
                     className={`px-4 py-2 rounded transition-colors duration-200 ${
                       currentPage === idx + 1
-                        ? "bg-primary text-white"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+                        ? "bg-[#4d0708] text-[#d9cfd0]"
+                        : "bg-[#4d0708]/5 text-[#4d0708] hover:bg-[#4d0708]/10 dark:text-[#d9cfd0]"
                     }`}
                   >
                     {idx + 1}

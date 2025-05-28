@@ -13,6 +13,8 @@ import { useCart } from "../context/CartContext";
 import axios from "axios";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { getApiUrl } from '../config/api';
 
 // Mock order summary (replace with real cart/total in production)
@@ -113,11 +115,19 @@ const ProceedToCheckout = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
     setProcessing(true);
+    setShowFailed(false); // Reset error state
 
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         navigate('/login');
+        return;
+      }
+
+      // Validate required fields
+      if (!customer.name || !customer.email || !customer.phone || !shipping.address || !shipping.city || !shipping.postal || !shipping.country) {
+        toast.error('Please fill in all required fields');
+        setShowFailed(true);
         return;
       }
 
@@ -161,9 +171,12 @@ const ProceedToCheckout = () => {
         setTimeout(() => {
           navigate('/orders');
         }, 2000);
+      } else {
+        throw new Error('Failed to create order');
       }
     } catch (error) {
       console.error('Error creating order:', error);
+      toast.error(error.response?.data?.message || 'Failed to create order. Please try again.');
       setShowFailed(true);
     } finally {
       setProcessing(false);
