@@ -6,8 +6,8 @@ import HomePage from "../src/pages/HomePage";
 import Login from "../src/pages/Login";
 import Register from "./pages/Register";
 import Kidswear from "./pages/Kidswear";
-import MensWear from "./pages/MensWear";
-import WomensWear from "./pages/WomensWear";
+import Menswear from "./pages/Menswear";
+import Womenswear from "./pages/Womenswear";
 import TopRated from "./pages/TopRated";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
@@ -65,8 +65,8 @@ const App = () => {
             }
           />
           <Route path="/kids-wear" element={<Kidswear />} />
-          <Route path="/mens-wear" element={<MensWear />} />
-          <Route path="/womens-wear" element={<WomensWear />} />
+          <Route path="/mens-wear" element={<Menswear />} />
+          <Route path="/womens-wear" element={<Womenswear />} />
           <Route path="/top-rated" element={<TopRated />} />
           <Route path="/all-products" element={<AllProduct />} />
           <Route path="/bestselling" element={<Bestselling />} />
