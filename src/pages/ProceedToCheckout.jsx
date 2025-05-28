@@ -6,7 +6,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { useCart } from "../context/CartContext";
@@ -46,13 +46,30 @@ const ProceedToCheckout = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showFailed, setShowFailed] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
+  const [buyNowItem, setBuyNowItem] = useState(null);
   
   const navigate = useNavigate();
+  const location = useLocation();
   const { cart, clearCart } = useCart();
 
   useEffect(() => {
     AOS.init({ duration: 700, once: true });
   }, []);
+
+  // Handle direct buy now items
+  useEffect(() => {
+    if (location.state?.buyNowItem) {
+      setBuyNowItem(location.state.buyNowItem);
+      setOrderDetails({
+        orderedItems: [{
+          ...location.state.buyNowItem,
+          quantity: 1
+        }],
+        total: location.state.buyNowItem.price,
+        labelTotal: location.state.buyNowItem.lastPrice || location.state.buyNowItem.price
+      });
+    }
+  }, [location.state]);
 
   // Fetch order details when component mounts
   useEffect(() => {
@@ -63,6 +80,9 @@ const ProceedToCheckout = () => {
           navigate('/login');
           return;
         }
+
+        // If it's a buy now item, don't fetch cart details
+        if (buyNowItem) return;
 
         const response = await axios.post(
           'http://localhost:5000/api/orders/quote',
@@ -83,10 +103,10 @@ const ProceedToCheckout = () => {
       }
     };
 
-    if (cart.items.length > 0) {
+    if (!buyNowItem && cart.items.length > 0) {
       fetchOrderDetails();
     }
-  }, [cart.items]);
+  }, [cart.items, buyNowItem]);
 
   const handlePayment = async (e) => {
     e.preventDefault();
@@ -99,23 +119,29 @@ const ProceedToCheckout = () => {
         return;
       }
 
-      // Prepare shipping address
       const fullShippingAddress = `${shipping.address}, ${shipping.city}, ${shipping.postal}, ${shipping.country}`;
 
-      // Create order data
+      // Create order data based on whether it's a buy now item or cart items
       const orderData = {
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
         address: fullShippingAddress,
-        orderedItems: cart.items.map(item => ({
-          productId: item.productId,
-          qty: item.quantity
-        })),
-        paymentMethod: paymentMethod
+        orderedItems: buyNowItem ? 
+          [{
+            productId: buyNowItem.productId,
+            qty: 1,
+            price: buyNowItem.price,
+            size: buyNowItem.size || 'M'
+          }] :
+          cart.items.map(item => ({
+            productId: item.productId,
+            qty: item.quantity
+          })),
+        paymentMethod: paymentMethod,
+        status: paymentMethod === 'cod' ? 'pending' : 'processing'
       };
 
-      // Send order to backend
       const response = await axios.post(
         'http://localhost:5000/api/orders',
         orderData,
@@ -126,7 +152,13 @@ const ProceedToCheckout = () => {
 
       if (response.data) {
         setShowSuccess(true);
-        await clearCart(); // Clear the cart after successful order
+        // Only clear cart if it wasn't a buy now item
+        if (!buyNowItem) {
+          await clearCart();
+        }
+        setTimeout(() => {
+          navigate('/orders');
+        }, 2000);
       }
     } catch (error) {
       console.error('Error creating order:', error);
@@ -136,12 +168,13 @@ const ProceedToCheckout = () => {
     }
   };
 
-  if (!orderDetails && cart.items.length === 0) {
+  // Show empty state if no items to checkout
+  if (!buyNowItem && cart.items.length === 0) {
     return (
       <div className="min-h-screen duration-200 bg-gradient-to-br from-blue-100 via-white to-pink-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 dark:text-white">
         <Navbar />
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <h2 className="mb-4 text-2xl font-bold">Your cart is empty</h2>
+          <h2 className="mb-4 text-2xl font-bold">No items to checkout</h2>
           <button
             onClick={() => navigate('/')}
             className="px-6 py-2 text-white transition-all rounded-full shadow bg-gradient-to-r from-primary to-secondary hover:scale-105"

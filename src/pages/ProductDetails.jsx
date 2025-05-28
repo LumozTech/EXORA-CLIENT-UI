@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { FaHeart, FaRegHeart, FaStar, FaRegSmile, FaRegThumbsUp, FaClock } from "react-icons/fa";
@@ -33,6 +33,7 @@ const ProductDetails = () => {
   const { addToCart, buyNow } = useCart();
   const [selectedSize, setSelectedSize] = useState('M');
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProductAndReviews = async () => {
@@ -183,9 +184,24 @@ const ProductDetails = () => {
   };
 
   // Buy now handler
-  const handleBuyNow = async () => {
-    if (!product) return;
-    await buyNow(product.productId, quantity, selectedSize);
+  const handleBuyNow = () => {
+    if (!selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+
+    const buyNowItem = {
+      productId: product.productId,
+      name: product.productName,
+      price: product.price,
+      lastPrice: product.lastPrice,
+      size: selectedSize,
+      image: product.images[0]
+    };
+
+    navigate('/checkout', { 
+      state: { buyNowItem }
+    });
   };
 
   if (loading) {
@@ -358,25 +374,15 @@ const ProductDetails = () => {
 
             {/* Action Buttons */}
               <div className="flex gap-4 mt-6">
-                <button 
-                  onClick={handleAddToCart}
-                  className={`px-6 py-2 font-semibold text-white transition-all duration-200 rounded shadow-lg ${
-                    product.stock > 0 
-                      ? 'bg-primary hover:bg-secondary hover:scale-105' 
-                      : 'bg-gray-400 cursor-not-allowed'
-                  }`}
-                  disabled={product.stock === 0}
+                <button
+                  onClick={() => handleAddToCart()}
+                  className="px-6 py-2 text-white transition-all rounded-full shadow bg-gradient-to-r from-primary to-secondary hover:scale-105"
                 >
                   Add to Cart
                 </button>
-                <button 
+                <button
                   onClick={handleBuyNow}
-                  className={`px-6 py-2 font-semibold text-white transition-all duration-200 rounded shadow-lg ${
-                    product.stock > 0 
-                      ? 'bg-secondary hover:bg-primary hover:scale-105' 
-                      : 'bg-gray-400 cursor-not-allowed'
-                  }`}
-                  disabled={product.stock === 0}
+                  className="px-6 py-2 text-white transition-all rounded-full shadow bg-gradient-to-r from-secondary to-primary hover:scale-105"
                 >
                   Buy Now
                 </button>
