@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Logo from "../../assets/logo.png";
+import Logo from "../../assets/logo-removebg-preview.png";
 import { IoMdSearch } from "react-icons/io";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaCaretDown } from "react-icons/fa";
@@ -117,9 +117,9 @@ const Navbar = ({ handleOrderPopup }) => {
       <div className="py-2 bg-primary/40">
         <div className="container flex items-center justify-between">
           <div>
-            <Link to="/" className="flex gap-2 text-2xl font-bold sm:text-3xl">
-              <img src={Logo} alt="Logo" className="w-10" />
-              Shopsy
+            <Link to="/" className="flex items-center gap-2 text-2xl font-bold sm:text-3xl">
+              <img src={Logo} alt="Exora Clothing" className="w-24 h-auto" />
+              <span className="hidden sm:block">Exora</span>
             </Link>
           </div>
 

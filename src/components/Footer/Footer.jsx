@@ -1,5 +1,5 @@
 import React from "react";
-import footerLogo from "../../assets/logo.png";
+import footerLogo from "../../assets/logo-removebg-preview.png";
 import Banner from "../../assets/website/footer-pattern.jpg";
 import {
   FaFacebook,
@@ -44,13 +44,12 @@ const Footer = () => {
         <div data-aos="zoom-in" className="grid md:grid-cols-3 pb-44 pt-5">
           {/* company details */}
           <div className="py-8 px-4">
-            <h1 className="sm:text-3xl text-xl font-bold sm:text-left text-justify mb-3 flex items-center gap-3">
-              <img src={footerLogo} alt="" className="max-w-[50px]" />
-              Shopsy
+            <h1 className="flex items-center gap-3 text-xl font-bold sm:text-3xl sm:text-left text-justify mb-3">
+              <img src={footerLogo} alt="Exora Clothing" className="max-w-[100px]" />
+              <span>Exora</span>
             </h1>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum in
-              beatae ea recusandae blanditiis veritatis.
+              Discover fashion that defines you. Quality clothing for every style and occasion.
             </p>
           </div>
 
