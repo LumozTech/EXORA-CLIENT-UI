@@ -5,7 +5,7 @@ import "aos/dist/aos.css";
 import HomePage from "../src/pages/HomePage";
 import Login from "../src/pages/Login";
 import Register from "./pages/Register";
-import KidsWear from "./pages/KidsWear";
+import Kidswear from "./pages/Kidswear";
 import MensWear from "./pages/MensWear";
 import WomensWear from "./pages/WomensWear";
 import TopRated from "./pages/TopRated";
@@ -64,7 +64,7 @@ const App = () => {
               />
             }
           />
-          <Route path="/kids-wear" element={<KidsWear />} />
+          <Route path="/kids-wear" element={<Kidswear />} />
           <Route path="/mens-wear" element={<MensWear />} />
           <Route path="/womens-wear" element={<WomensWear />} />
           <Route path="/top-rated" element={<TopRated />} />
