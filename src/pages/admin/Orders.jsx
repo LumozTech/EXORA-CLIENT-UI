@@ -326,23 +326,23 @@ const Orders = () => {
                       <div>
                         <p className="text-sm text-white/70">Email</p>
                         <p className="font-semibold">{modalOrder.email}</p>
-                      </div>
-                    </div>
+              </div>
+              </div>
                     <div className="flex items-center gap-3">
                       <FaPhone className="text-white/70" />
                       <div>
                         <p className="text-sm text-white/70">Phone</p>
                         <p className="font-semibold">{modalOrder.phone}</p>
-                      </div>
-                    </div>
+              </div>
+              </div>
                     <div className="flex items-start gap-3">
                       <FaMapMarkerAlt className="mt-1 text-white/70" />
                       <div>
                         <p className="text-sm text-white/70">Shipping Address</p>
                         <p className="font-semibold">{modalOrder.address}</p>
-                      </div>
-                    </div>
-                  </div>
+              </div>
+              </div>
+              </div>
                 </div>
 
                 {/* Middle Column - Order Info */}
@@ -356,24 +356,24 @@ const Orders = () => {
                       <div>
                         <p className="text-sm text-white/70">Order ID</p>
                         <p className="font-semibold">{modalOrder.orderId}</p>
-                      </div>
-                    </div>
+                </div>
+              </div>
                     <div className="flex items-center gap-3">
                       <FaTruck className="text-white/70" />
                       <div>
                         <p className="text-sm text-white/70">Order Status</p>
-                        <select
+                <select
                           className="px-3 py-1 mt-1 text-sm font-semibold bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:border-white/50"
-                          value={modalStatus}
-                          onChange={(e) => setModalStatus(e.target.value)}
-                        >
-                          <option value="Preparing">Preparing</option>
-                          <option value="Processing">Processing</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
-                      </div>
+                  value={modalStatus}
+                  onChange={(e) => setModalStatus(e.target.value)}
+                >
+                  <option value="Preparing">Preparing</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <FaCreditCard className="text-white/70" />
@@ -439,12 +439,12 @@ const Orders = () => {
               </div>
 
               <div className="flex justify-center mt-8">
-                <button
+              <button
                   className="px-6 py-2 font-semibold text-white transition rounded-lg bg-[#00796B] hover:bg-[#005B4F]"
-                  onClick={handleUpdateStatus}
-                >
+                onClick={handleUpdateStatus}
+              >
                   Update Order Status
-                </button>
+              </button>
               </div>
             </div>
           </div>

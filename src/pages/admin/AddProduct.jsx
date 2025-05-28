@@ -95,6 +95,26 @@ const AddProduct = () => {
     setLoading(true);
     
     try {
+      // Validate required fields
+      if (!form.productName || !form.price || !form.description || !form.stock || imageFiles.length === 0) {
+        toast.error("Please fill in all required fields and add at least one image");
+        setLoading(false);
+        return;
+      }
+
+      // Validate price and stock
+      if (parseFloat(form.price) <= 0) {
+        toast.error("Price must be greater than 0");
+        setLoading(false);
+        return;
+      }
+
+      if (parseInt(form.stock) < 0) {
+        toast.error("Stock cannot be negative");
+        setLoading(false);
+        return;
+      }
+
       // Upload all images to Supabase
       const uploadPromises = imageFiles.map(file => 
         uploadMediaToSupabase(file, 'products')
@@ -102,20 +122,24 @@ const AddProduct = () => {
       
       const uploadedUrls = await Promise.all(uploadPromises);
       
+      if (!uploadedUrls.length) {
+        throw new Error("Failed to upload images");
+      }
+      
       // Generate a unique productId
-      const productId = `prod_${Date.now()}`;
+      const productId = `prod_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       // Prepare the product data
       const productData = {
         productId,
-        productName: form.productName,
-        altNames: form.altNames ? form.altNames.split(',').map(name => name.trim()) : [],
+        productName: form.productName.trim(),
+        altNames: form.altNames ? form.altNames.split(',').map(name => name.trim()).filter(Boolean) : [],
         images: uploadedUrls,
         price: parseFloat(form.price),
         lastPrice: form.lastPrice ? parseFloat(form.lastPrice) : parseFloat(form.price),
-        description: form.description,
+        description: form.description.trim(),
         stock: parseInt(form.stock),
-        soldCount: parseInt(form.soldCount),
+        soldCount: parseInt(form.soldCount) || 0,
         category: form.category,
         isBestSelling: form.isBestSelling,
         isTopRated: form.isTopRated,
@@ -125,6 +149,12 @@ const AddProduct = () => {
       // Get auth token from localStorage
       const token = localStorage.getItem('token');
       
+      if (!token) {
+        toast.error("Authentication token not found. Please login again.");
+        navigate('/login');
+        return;
+      }
+
       // Make API call
       const response = await axios.post('http://localhost:5000/api/products', productData, {
         headers: {
@@ -133,18 +163,40 @@ const AddProduct = () => {
         }
       });
 
-      // Handle success
-      toast.success("Product added successfully!");
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        navigate("/admin/products");
-      }, 1200);
+      if (response.data) {
+        // Handle success
+        toast.success("Product added successfully!");
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          navigate("/admin/products");
+        }, 1200);
+      } else {
+        throw new Error(response.data.message || "Failed to create product");
+      }
 
     } catch (error) {
       console.error("Error creating product:", error);
-      toast.error(error.response?.data?.message || "Failed to create product");
-      setError(error.response?.data?.message || "Failed to create product. Please try again.");
+      
+      // Handle specific error cases
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please login again");
+        navigate('/login');
+        return;
+      }
+      
+      if (error.response?.status === 403) {
+        toast.error("You don't have permission to add products");
+        return;
+      }
+      
+      if (error.message.includes("Network Error")) {
+        toast.error("Network error. Please check your connection");
+        return;
+      }
+
+      toast.error(error.response?.data?.message || error.message || "Failed to create product");
+      setError(error.response?.data?.message || error.message || "Failed to create product. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -347,9 +399,21 @@ const AddProduct = () => {
 
                 <button
                   type="submit"
-                  className="mt-2 bg-[#00796B] hover:bg-[#005B4F] text-white font-semibold py-2 rounded-lg transition w-full"
+                  disabled={loading}
+                  className={`mt-2 ${
+                    loading 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-[#00796B] hover:bg-[#005B4F]'
+                  } text-white font-semibold py-2 rounded-lg transition w-full flex items-center justify-center`}
                 >
-                  Add Product
+                  {loading ? (
+                    <>
+                      <div className="w-5 h-5 mr-2 border-2 border-t-2 border-white rounded-full animate-spin border-t-transparent"></div>
+                      Adding Product...
+                    </>
+                  ) : (
+                    'Add Product'
+                  )}
                 </button>
 
                 {submitted && (

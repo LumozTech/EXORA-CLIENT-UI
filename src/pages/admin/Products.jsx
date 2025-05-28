@@ -540,8 +540,8 @@ const Products = () => {
               </button>
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 {/* Left Column - Images */}
-                <div className="flex flex-col items-center gap-4">
-                  {selectedProduct.images?.length > 0 ? (
+              <div className="flex flex-col items-center gap-4">
+                {selectedProduct.images?.length > 0 ? (
                     <div className="grid grid-cols-2 gap-4">
                       {selectedProduct.images.map((img, idx) => (
                         <img
@@ -549,43 +549,43 @@ const Products = () => {
                           src={img}
                           alt={`${selectedProduct.productName} ${idx + 1}`}
                           className="object-cover w-full h-40 border border-gray-300 rounded-lg"
-                        />
+                  />
                       ))}
                     </div>
-                  ) : (
+                ) : (
                     <FaBoxOpen className="w-32 h-32 text-white" />
-                  )}
+                )}
                 </div>
                 {/* Right Column - Details */}
                 <div className="space-y-4 text-white">
                   <h3 className="text-2xl font-bold" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
-                    {selectedProduct.productName}
-                  </h3>
+                  {selectedProduct.productName}
+                </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="font-semibold">Product ID:</p>
                       <p className="text-sm">{selectedProduct.productId}</p>
-                    </div>
+                  </div>
                     <div>
                       <p className="font-semibold">Category:</p>
                       <p className="capitalize">{selectedProduct.category}</p>
-                    </div>
+                  </div>
                     <div>
                       <p className="font-semibold">Current Price:</p>
                       <p>{formatPrice(selectedProduct.price)}</p>
-                    </div>
+                  </div>
                     <div>
                       <p className="font-semibold">Previous Price:</p>
                       <p>{formatPrice(selectedProduct.lastPrice)}</p>
-                    </div>
+                  </div>
                     <div>
                       <p className="font-semibold">Stock:</p>
                       <p>{selectedProduct.stock}</p>
-                    </div>
+                  </div>
                     <div>
                       <p className="font-semibold">Sold:</p>
                       <p>{selectedProduct.soldCount}</p>
-                    </div>
+                  </div>
                   </div>
                   <div>
                     <p className="font-semibold">Alternative Names:</p>

@@ -109,56 +109,63 @@ const MensWear = () => {
                 </p>
               </div>
             ) : (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center">
           {currentProducts.map((product, idx) => (
             <div
-                    key={product.productId}
-                    className="flex flex-col overflow-hidden bg-white rounded-lg shadow-md cursor-pointer dark:bg-gray-800 hover:shadow-xl transition-shadow duration-300"
-              data-aos="zoom-in"
+              key={product.productId}
+              className="space-y-3 cursor-pointer"
+              data-aos="fade-up"
               data-aos-delay={idx * 100}
               onClick={() =>
-                      navigate(`/product/${product.productId}`, { state: { product } })
+                navigate(`/product/${product.productId}`, { state: { product } })
               }
             >
-                    <div className="relative overflow-hidden h-56">
-              <img
-                        src={product.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}
-                        alt={product.productName}
-                        className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
-                      />
-                      {product.stock === 0 && (
-                        <div className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center">
-                          <span className="px-4 py-2 bg-red-500 text-white rounded">Out of Stock</span>
-                        </div>
-                      )}
-                    </div>
-              <div className="flex flex-col items-center p-4">
-                      <h3 className="mb-2 text-lg font-semibold">{product.productName}</h3>
-                      <div className="flex items-center gap-2 mb-2">
-                        <p className="font-bold text-primary">{formatPrice(product.price)}</p>
-                        {product.lastPrice && product.lastPrice > product.price && (
-                          <p className="text-sm text-gray-500 line-through">
-                            {formatPrice(product.lastPrice)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        {product.isBestSelling && (
-                          <span className="px-2 py-1 text-xs text-white bg-green-500 rounded">Best Seller</span>
-                        )}
-                        {product.isTopRated && (
-                          <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
-                        )}
-                      </div>
-                      <button 
-                        className={`px-4 py-2 mt-2 text-white transition-colors rounded ${
-                          product.stock > 0 
-                            ? 'bg-primary hover:bg-secondary' 
-                            : 'bg-gray-400 cursor-not-allowed'
-                        }`}
-                        disabled={product.stock === 0}
-                      >
-                        {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+              <div className="relative overflow-hidden h-[220px] w-[150px]">
+                <img
+                  src={product.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}
+                  alt={product.productName}
+                  className="object-cover w-full h-full rounded-md transition-transform duration-300 hover:scale-110"
+                />
+                {product.stock === 0 && (
+                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center">
+                    <span className="px-4 py-2 bg-red-500 text-white rounded">Out of Stock</span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <h3 className="font-semibold">{product.productName}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="font-bold text-primary">{formatPrice(product.price)}</p>
+                  {product.lastPrice && product.lastPrice > product.price && (
+                    <p className="text-sm text-gray-500 line-through">
+                      {formatPrice(product.lastPrice)}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2 mb-2">
+                  {product.isBestSelling && (
+                    <span className="px-2 py-1 text-xs text-white bg-green-500 rounded">Best Seller</span>
+                  )}
+                  {product.isTopRated && (
+                    <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
+                  )}
+                </div>
+                <button
+                  className={`px-4 py-2 text-white transition-colors rounded-md ${
+                    product.stock > 0 
+                      ? 'bg-primary hover:bg-secondary' 
+                      : 'bg-gray-400 cursor-not-allowed'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Add to cart logic here
+                  }}
+                  disabled={product.stock === 0}
+                >
+                  {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
                 </button>
               </div>
             </div>

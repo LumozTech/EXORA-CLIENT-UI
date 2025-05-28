@@ -257,41 +257,41 @@ const Reviews = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {productReviews.map((review) => (
-                    <tr
-                      key={review._id}
+                          {productReviews.map((review) => (
+                      <tr
+                              key={review._id}
                       className="border-t hover:bg-[#E0F2F1]/60 transition cursor-pointer"
                       onClick={() => setSelectedReview(review)}
-                    >
+                      >
                       <td className="px-4 py-2 text-white">{review.email}</td>
-                      <td className="px-4 py-2">
-                        <span className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <FaStar
-                              key={i}
-                              className={i < review.rating ? "text-yellow-400" : "text-gray-300"}
-                            />
-                          ))}
-                        </span>
-                      </td>
+                              <td className="px-4 py-2">
+                          <span className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <FaStar
+                                key={i}
+                                      className={i < review.rating ? "text-yellow-400" : "text-gray-300"}
+                              />
+                            ))}
+                          </span>
+                        </td>
                       <td className="px-4 py-2 text-white">{review.review}</td>
                       <td className="px-4 py-2 text-white">
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            !review.hidden
-                              ? "bg-green-200 text-green-800"
-                              : "bg-red-200 text-red-800"
-                          }`}
-                        >
-                          {!review.hidden ? "Approved" : "Rejected"}
-                        </span>
-                      </td>
+                                {new Date(review.createdAt).toLocaleDateString()}
+                        </td>
+                              <td className="px-4 py-2">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    !review.hidden
+                                ? "bg-green-200 text-green-800"
+                                : "bg-red-200 text-red-800"
+                            }`}
+                          >
+                                  {!review.hidden ? "Approved" : "Rejected"}
+                          </span>
+                        </td>
                       <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex gap-2">
-                          <button
+                          <div className="flex gap-2">
+                            <button
                                     onClick={() => handleUpdateVisibility(review._id, false, "approved")}
                                     disabled={processing === review._id || !review.hidden}
                               className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
@@ -317,10 +317,10 @@ const Reviews = () => {
                                       </>
                                     )}
                             </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          </div>
+                        </td>
+                      </tr>
+                          ))}
                 </tbody>
               </table>
             </div>
