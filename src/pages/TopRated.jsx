@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import Subscribe from "../components/Subscribe/Subscribe";
 import Testimonials from "../components/Testimonials/Testimonials";
+import { FaStar } from "react-icons/fa6";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import axios from "axios";
@@ -11,26 +12,24 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getApiUrl } from '../config/api';
 
-const PRODUCTS_PER_PAGE = 9; // 3 rows if each row has 3 products
-
 const TopRated = () => {
-  const [currentPage, setCurrentPage] = useState(1);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
+  const productsPerPage = 8;
 
-  // Fetch products from API
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
         const response = await axios.get(getApiUrl('/api/products'));
-        // Filter only top rated products
         const topRatedProducts = response.data.list.filter(product => product.isTopRated);
         setProducts(topRatedProducts);
       } catch (error) {
-        toast.error('Failed to fetch products');
         console.error('Error fetching products:', error);
+        toast.error('Failed to load products');
       } finally {
         setLoading(false);
       }
@@ -39,190 +38,203 @@ const TopRated = () => {
     fetchProducts();
   }, []);
 
+  // Initialize AOS
   useEffect(() => {
     AOS.init({
-      offset: 100,
       duration: 800,
-      easing: "ease-in-sine",
-      delay: 100,
+      easing: "ease-in-out",
     });
-    AOS.refresh();
   }, []);
 
-  // Pagination logic
-  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE);
-  const startIdx = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const currentProducts = products.slice(startIdx, startIdx + PRODUCTS_PER_PAGE);
+  // Pagination
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(products.length / productsPerPage);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Format price
-  const formatPrice = (price) => `Rs. ${price.toLocaleString()}`;
+  const formatPrice = (price) => {
+    return `Rs. ${price?.toLocaleString() || '0'}`;
+  };
 
   return (
-    <div className="duration-200 bg-white dark:bg-gray-900 dark:text-white">
-      <ToastContainer />
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <Navbar />
-      {/* Top Rated Hero Section */}
-      <section
-        className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-yellow-100 via-orange-100 to-red-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
-        data-aos="fade-down"
-      >
-        <h1
-          className="mb-4 text-4xl font-bold md:text-5xl text-primary"
-          data-aos="fade-up"
-        >
-          Top Rated Products
-        </h1>
-        <p
-          className="max-w-xl text-lg text-center text-gray-700 dark:text-gray-300"
-          data-aos="fade-up"
-          data-aos-delay="100"
-        >
-          Discover our most loved and highly rated products, chosen by our
-          customers for their quality and style!
-        </p>
-      </section>
+      <ToastContainer />
 
-      {/* Top Rated Products with Pagination */}
-      <div data-aos="fade-up" className="container px-4 py-8 mx-auto">
+      {/* Hero Section */}
+      <div className="relative py-16 bg-gradient-to-b from-[#4d0708] to-[#4d0708]/90">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 
+              className="text-4xl md:text-5xl font-bold text-[#d9cfd0] mb-4"
+              data-aos="fade-up"
+            >
+              Top Rated Products
+            </h1>
+            <p 
+              className="text-lg text-[#d9cfd0]/90 mb-8"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              Discover our most loved and highly rated products, chosen by our customers for their exceptional quality and style.
+            </p>
+            <div 
+              className="w-24 h-1 bg-[#d9cfd0] mx-auto"
+              data-aos="fade-up"
+              data-aos-delay="200"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Products Section */}
+      <div className="container mx-auto px-4 py-16">
         {loading ? (
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="w-16 h-16 border-4 border-t-4 rounded-full border-primary border-t-transparent animate-spin"></div>
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="w-16 h-16 border-4 border-[#4d0708] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[400px]">
-            <h2 className="mb-2 text-2xl font-semibold text-gray-600">No Top Rated Products Found</h2>
-            <p className="text-gray-500">Check back later for our top-rated items!</p>
+          <div className="text-center py-16">
+            <h2 className="text-2xl font-semibold text-[#4d0708] mb-2">
+              No Top Rated Products Found
+            </h2>
+            <p className="text-gray-600 dark:text-[#d9cfd0]/80">
+              Check back later for our top-rated items!
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center">
-            {currentProducts.map((product, idx) => (
-              <div
-                key={product.productId}
-                className="space-y-3 cursor-pointer"
-                data-aos="fade-up"
-                data-aos-delay={idx * 100}
-                onClick={() => navigate(`/product/${product.productId}`, { state: { product } })}
-              >
-                <div className="relative overflow-hidden h-[220px] w-[150px]">
-                  <img
-                    src={product.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}
-                    alt={product.productName}
-                    className="object-cover w-full h-full rounded-md transition-transform duration-300 hover:scale-110"
-                  />
-                  {product.stock === 0 && (
-                    <div className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center">
-                      <span className="px-4 py-2 bg-red-500 text-white rounded">Out of Stock</span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{product.productName}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
-                  </p>
-                  <div className="flex items-center gap-2 mb-2">
-                    <p className="font-bold text-primary">{formatPrice(product.price)}</p>
-                    {product.lastPrice && product.lastPrice > product.price && (
-                      <p className="text-sm text-gray-500 line-through">
-                        {formatPrice(product.lastPrice)}
-                      </p>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {currentProducts.map((product, idx) => (
+                <div
+                  key={product.productId}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-[#4d0708]/5"
+                  data-aos="fade-up"
+                  data-aos-delay={idx * 100}
+                  onClick={() => navigate(`/product/${product.productId}`, { state: { product } })}
+                >
+                  {/* Product Image */}
+                  <div className="relative h-64 overflow-hidden group">
+                    <img
+                      src={product.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}
+                      alt={product.productName}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {product.stock === 0 && (
+                      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                        <span className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium">
+                          Out of Stock
+                        </span>
+                      </div>
                     )}
                   </div>
-                  <div className="flex gap-2 mb-2">
-                    {product.isBestSelling && (
-                      <span className="px-2 py-1 text-xs text-white bg-green-500 rounded">Best Seller</span>
-                    )}
-                    {product.isTopRated && (
-                      <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
-                    )}
-                  </div>
-                  <button
-                    className={`px-4 py-2 text-white transition-colors rounded-md ${
-                      product.stock > 0 
-                        ? 'bg-primary hover:bg-secondary' 
-                        : 'bg-gray-400 cursor-not-allowed'
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Add to cart logic here
-                    }}
-                    disabled={product.stock === 0}
-                  >
-                    {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
-        {/* Pagination */}
-        {!loading && products.length > PRODUCTS_PER_PAGE && (
-          <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: totalPages }, (_, idx) => (
-              <button
-                key={idx + 1}
-                onClick={() => handlePageChange(idx + 1)}
-                className={`px-4 py-2 rounded ${
-                  currentPage === idx + 1
-                    ? "bg-primary text-white"
-                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
-                }`}
-              >
-                {idx + 1}
-              </button>
-            ))}
-          </div>
+                  {/* Product Details */}
+                  <div className="p-4">
+                    {/* Rating Stars */}
+                    <div className="flex gap-1 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar key={i} className="text-[#4d0708]" />
+                      ))}
+                    </div>
+
+                    {/* Product Name */}
+                    <h3 className="font-semibold text-[#4d0708] dark:text-[#d9cfd0] mb-2 line-clamp-2">
+                      {product.productName}
+                    </h3>
+
+                    {/* Category */}
+                    <p className="text-sm text-gray-600 dark:text-[#d9cfd0]/80 mb-2">
+                      {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                    </p>
+
+                    {/* Price */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="font-bold text-[#4d0708] dark:text-[#d9cfd0]">
+                        {formatPrice(product.price)}
+                      </span>
+                      {product.lastPrice && product.lastPrice > product.price && (
+                        <span className="text-sm text-gray-500 line-through">
+                          {formatPrice(product.lastPrice)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Badges */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {product.isBestSelling && (
+                        <span className="px-3 py-1 text-xs text-white bg-[#4d0708] rounded-full shadow-md">
+                          Best Seller
+                        </span>
+                      )}
+                      {product.isTopRated && (
+                        <span className="px-3 py-1 text-xs text-white bg-[#4d0708] rounded-full shadow-md">
+                          Top Rated
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Add to Cart Button */}
+                    <button
+                      className={`w-full px-4 py-2 rounded-lg transition-all duration-300 ${
+                        product.stock > 0
+                          ? 'bg-[#4d0708] text-white hover:bg-[#4d0708]/90 hover:shadow-lg active:scale-95'
+                          : 'bg-gray-400 text-white cursor-not-allowed'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (product.stock > 0) {
+                          // Add to cart logic here
+                          toast.success('Added to cart');
+                        }
+                      }}
+                      disabled={product.stock === 0}
+                    >
+                      {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-8">
+                {[...Array(totalPages)].map((_, idx) => (
+                  <button
+                    key={idx + 1}
+                    onClick={() => handlePageChange(idx + 1)}
+                    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                      currentPage === idx + 1
+                        ? 'bg-[#4d0708] text-white shadow-md'
+                        : 'bg-[#d9cfd0]/20 text-[#4d0708] hover:bg-[#d9cfd0]/40 dark:bg-gray-700 dark:text-[#d9cfd0] dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* Testimonials Section */}
-      <div data-aos="zoom-in">
+      <div data-aos="fade-up">
         <Testimonials />
       </div>
 
-      {/* Featured Brands Section */}
-      <section
-        className="flex flex-col items-center justify-center py-12 bg-gradient-to-r from-orange-50 via-yellow-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
-        data-aos="fade-up"
-        data-aos-delay="200"
-      >
-        <h2 className="mb-4 text-2xl font-bold text-primary">
-          Featured Brands
-        </h2>
-        <div className="flex flex-wrap justify-center gap-8">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg"
-            alt="Nike"
-            className="h-10"
-          />
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/2/24/Adidas_logo.png"
-            alt="Adidas"
-            className="h-10"
-          />
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/0/0e/Puma_logo.svg"
-            alt="Puma"
-            className="h-10"
-          />
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Levis-logo.png"
-            alt="Levis"
-            className="h-10"
-          />
-        </div>
-      </section>
-
       {/* Subscribe Section */}
-      <div data-aos="fade-up" data-aos-delay="300">
+      <div data-aos="fade-up">
         <Subscribe />
       </div>
+
       <Footer />
     </div>
   );
