@@ -32,10 +32,10 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
     return (
       <div className="container px-4 py-8 mx-auto">
         <div className="text-center">
-          <h2 className="mb-8 text-3xl font-bold text-primary">{title}</h2>
+          <h2 className="mb-8 text-3xl font-bold text-[#4d0708]">{title}</h2>
         </div>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="w-16 h-16 border-4 border-t-4 rounded-full border-primary border-t-transparent animate-spin"></div>
+          <div className="w-16 h-16 border-4 border-t-4 rounded-full border-[#4d0708] border-t-transparent animate-spin"></div>
         </div>
       </div>
     );
@@ -45,7 +45,7 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
     return (
       <div className="container px-4 py-8 mx-auto">
         <div className="text-center">
-          <h2 className="mb-8 text-3xl font-bold text-primary">{title}</h2>
+          <h2 className="mb-8 text-3xl font-bold text-[#4d0708]">{title}</h2>
         </div>
         <div className="text-center">
           <p className="text-xl text-gray-600 dark:text-gray-400">
@@ -59,7 +59,7 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
   return (
     <div className="container px-4 py-8 mx-auto">
       <div className="text-center">
-        <h2 className="mb-8 text-3xl font-bold text-primary">{title}</h2>
+        <h2 className="mb-8 text-3xl font-bold text-[#4d0708]">{title}</h2>
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center">
         {products.map((product, idx) => (
@@ -85,12 +85,12 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
               )}
             </div>
             <div>
-              <h3 className="font-semibold">{product.productName}</h3>
+              <h3 className="font-semibold text-[#4d0708]">{product.productName}</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
               </p>
               <div className="flex items-center gap-2 mb-2">
-                <p className="font-bold text-primary">{formatPrice(product.price)}</p>
+                <p className="font-bold text-[#4d0708]">{formatPrice(product.price)}</p>
                 {product.lastPrice && product.lastPrice > product.price && (
                   <p className="text-sm text-gray-500 line-through">
                     {formatPrice(product.lastPrice)}
@@ -99,16 +99,16 @@ const Products = ({ products = [], loading = false, title = "Our Products" }) =>
               </div>
               <div className="flex gap-2 mb-2">
                 {product.isBestSelling && (
-                  <span className="px-2 py-1 text-xs text-white bg-green-500 rounded">Best Seller</span>
+                  <span className="px-2 py-1 text-xs text-white bg-[#4d0708] rounded">Best Seller</span>
                 )}
                 {product.isTopRated && (
-                  <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
+                  <span className="px-2 py-1 text-xs text-white bg-[#4d0708] rounded">Top Rated</span>
                 )}
               </div>
               <button
                 className={`px-4 py-2 text-white transition-colors rounded-md ${
                   product.stock > 0 
-                    ? 'bg-primary hover:bg-secondary' 
+                    ? 'bg-[#4d0708] hover:bg-[#4d0708]/90' 
                     : 'bg-gray-400 cursor-not-allowed'
                 }`}
                 onClick={(e) => handleAddToCart(e, product)}

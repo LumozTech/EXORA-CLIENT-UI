@@ -16,15 +16,15 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
       <div className="mb-12 mt-14">
         <div className="container">
           <div className="text-center mb-10 max-w-[600px] mx-auto">
-            <p data-aos="fade-up" className="text-sm text-primary">
+            <p data-aos="fade-up" className="text-sm text-[#4d0708]">
               Top Rated Products for you
             </p>
-            <h1 data-aos="fade-up" className="text-3xl font-bold">
+            <h1 data-aos="fade-up" className="text-3xl font-bold text-[#4d0708]">
               Best Products
             </h1>
           </div>
           <div className="flex items-center justify-center min-h-[200px]">
-            <div className="w-16 h-16 border-4 border-t-4 rounded-full border-primary border-t-transparent animate-spin"></div>
+            <div className="w-16 h-16 border-4 border-t-4 rounded-full border-[#4d0708] border-t-transparent animate-spin"></div>
           </div>
         </div>
       </div>
@@ -36,10 +36,10 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
       <div className="mb-12 mt-14">
         <div className="container">
           <div className="text-center mb-10 max-w-[600px] mx-auto">
-            <p data-aos="fade-up" className="text-sm text-primary">
+            <p data-aos="fade-up" className="text-sm text-[#4d0708]">
               Top Rated Products for you
             </p>
-            <h1 data-aos="fade-up" className="text-3xl font-bold">
+            <h1 data-aos="fade-up" className="text-3xl font-bold text-[#4d0708]">
               Best Products
             </h1>
           </div>
@@ -56,10 +56,10 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
       <div className="container">
         {/* Header section */}
         <div className="text-center mb-10 max-w-[600px] mx-auto">
-          <p data-aos="fade-up" className="text-sm text-primary">
+          <p data-aos="fade-up" className="text-sm text-[#4d0708]">
             Top Rated Products for you
           </p>
-          <h1 data-aos="fade-up" className="text-3xl font-bold">
+          <h1 data-aos="fade-up" className="text-3xl font-bold text-[#4d0708]">
             Best Products
           </h1>
           <p data-aos="fade-up" className="text-xs text-gray-400">
@@ -90,15 +90,15 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
               </div>
               <div className="flex flex-col items-center p-4 w-full">
                 <div className="flex items-center justify-center gap-1 mb-2">
-                  <FaStar className="text-yellow-400" />
-                  <FaStar className="text-yellow-400" />
-                  <FaStar className="text-yellow-400" />
-                  <FaStar className="text-yellow-400" />
-                  <FaStar className="text-yellow-400" />
+                  <FaStar className="text-[#4d0708]" />
+                  <FaStar className="text-[#4d0708]" />
+                  <FaStar className="text-[#4d0708]" />
+                  <FaStar className="text-[#4d0708]" />
+                  <FaStar className="text-[#4d0708]" />
                 </div>
-                <h3 className="mb-2 text-lg font-semibold">{product.productName}</h3>
+                <h3 className="mb-2 text-lg font-semibold text-[#4d0708]">{product.productName}</h3>
                 <div className="flex items-center gap-2 mb-2">
-                  <p className="font-bold text-primary">{formatPrice(product.price)}</p>
+                  <p className="font-bold text-[#4d0708]">{formatPrice(product.price)}</p>
                   {product.lastPrice && product.lastPrice > product.price && (
                     <p className="text-sm text-gray-500 line-through">
                       {formatPrice(product.lastPrice)}
@@ -107,16 +107,16 @@ const TopProducts = ({ products = [], loading = false, handleOrderPopup }) => {
                 </div>
                 <div className="flex gap-2 mb-2">
                   {product.isBestSelling && (
-                    <span className="px-2 py-1 text-xs text-white bg-green-500 rounded">Best Seller</span>
+                    <span className="px-2 py-1 text-xs text-white bg-[#4d0708] rounded">Best Seller</span>
                   )}
                   {product.isTopRated && (
-                    <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded">Top Rated</span>
+                    <span className="px-2 py-1 text-xs text-white bg-[#4d0708] rounded">Top Rated</span>
                   )}
                 </div>
                 <button 
                   className={`px-4 py-2 text-white transition-colors rounded ${
                     product.stock > 0 
-                      ? 'bg-primary hover:bg-secondary' 
+                      ? 'bg-[#4d0708] hover:bg-[#4d0708]/90' 
                       : 'bg-gray-400 cursor-not-allowed'
                   }`}
                   onClick={(e) => {
