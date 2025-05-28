@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
-import Banner from "../components/Banner/Banner";
 import Subscribe from "../components/Subscribe/Subscribe";
+import Testimonials from "../components/Testimonials/Testimonials";
+import { FaStar } from "react-icons/fa6";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import axios from "axios";
@@ -11,12 +12,13 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getApiUrl } from '../config/api';
 
-const PRODUCTS_PER_PAGE = 9; // 3 rows if each row has 3 products
+const PRODUCTS_PER_PAGE = 9;
 
-const KidsWear = () => {
+const Bestselling = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
 
   // Fetch products from API
@@ -25,11 +27,11 @@ const KidsWear = () => {
       try {
         setLoading(true);
         const response = await axios.get(getApiUrl('/api/products'));
-        // Filter for kids category and active products
-        const kidsProducts = response.data.list.filter(
-          product => product.category === 'kids' && product.status === 'active'
+        // Filter for best-selling and active products
+        const bestsellingProducts = response.data.list.filter(
+          product => product.isBestSelling && product.status === 'active'
         );
-        setProducts(kidsProducts);
+        setProducts(bestsellingProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
         toast.error('Failed to fetch products');
@@ -51,10 +53,18 @@ const KidsWear = () => {
     AOS.refresh();
   }, []);
 
-  // Pagination logic
-  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE);
+  // Filter logic
+  const filteredProducts =
+    filter === "All"
+      ? products
+      : products.filter((p) => p.category.toLowerCase() === filter.toLowerCase());
+
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const startIdx = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const currentProducts = products.slice(startIdx, startIdx + PRODUCTS_PER_PAGE);
+  const currentProducts = filteredProducts.slice(
+    startIdx,
+    startIdx + PRODUCTS_PER_PAGE
+  );
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -72,7 +82,7 @@ const KidsWear = () => {
       <Navbar />
       <ToastContainer />
       
-      {/* Kids Wear Hero Section */}
+      {/* Hero Section */}
       <section
         className="flex flex-col items-center justify-center py-16 bg-gradient-to-r from-[#4d0708]/5 via-white to-[#4d0708]/5 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
         data-aos="fade-down"
@@ -81,18 +91,36 @@ const KidsWear = () => {
           className="mb-4 text-4xl font-bold md:text-5xl text-[#4d0708]"
           data-aos="fade-up"
         >
-          Kids Wear Collection
+          Bestselling Products
         </h1>
         <p
           className="max-w-xl text-lg text-center text-[#4d0708]/80 dark:text-[#d9cfd0]"
           data-aos="fade-up"
           data-aos-delay="100"
         >
-          Discover our adorable and comfortable kids wear collection, perfect
-          for every occasion. Bright colors, playful designs, and soft fabrics
-          for your little ones!
+          Discover our most popular picks loved by customers!
         </p>
       </section>
+
+      {/* Filter Buttons */}
+      <div className="flex justify-center gap-4 mt-6 mb-8">
+        {["All", "men", "women", "kids"].map((cat) => (
+          <button
+            key={cat}
+            onClick={() => {
+              setFilter(cat);
+              setCurrentPage(1);
+            }}
+            className={`px-6 py-2 rounded-full font-semibold transition-all ${
+              filter === cat
+                ? "bg-[#4d0708] text-[#d9cfd0]"
+                : "bg-[#4d0708]/5 text-[#4d0708] hover:bg-[#4d0708]/10 dark:text-[#d9cfd0]"
+            }`}
+          >
+            {cat === "All" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+          </button>
+        ))}
+      </div>
 
       {/* Loading State */}
       {loading ? (
@@ -101,22 +129,22 @@ const KidsWear = () => {
         </div>
       ) : (
         <>
-          {/* Kids Wear Products with Pagination */}
+          {/* Products Grid */}
           <div data-aos="fade-up" className="container px-4 py-8 mx-auto">
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <div className="text-center">
                 <p className="text-xl text-[#4d0708]/60 dark:text-[#d9cfd0]/60">
-                  No kids wear products available at the moment.
+                  No bestselling products available in this category at the moment.
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center">
                 {currentProducts.map((product, idx) => (
                   <div
-                    key={product.productId}
-                    className="space-y-3 cursor-pointer"
                     data-aos="fade-up"
                     data-aos-delay={idx * 100}
+                    key={product.productId}
+                    className="space-y-3 cursor-pointer"
                     onClick={() =>
                       navigate(`/product/${product.productId}`, { state: { product } })
                     }
@@ -194,21 +222,20 @@ const KidsWear = () => {
             )}
           </div>
 
-          {/* Banner Section */}
+          {/* Testimonials Section */}
           <div data-aos="zoom-in">
-            <Banner />
-          </div>
-
-          {/* Subscribe Section */}
-          <div data-aos="fade-up" data-aos-delay="200">
-            <Subscribe />
+            <Testimonials />
           </div>
         </>
       )}
-      
+
+      {/* Subscribe Section */}
+      <div data-aos="fade-up" data-aos-delay="200">
+        <Subscribe />
+      </div>
       <Footer />
     </div>
   );
 };
 
-export default KidsWear;
+export default Bestselling;

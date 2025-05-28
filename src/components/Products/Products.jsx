@@ -1,104 +1,124 @@
 import React from "react";
-import Img1 from "../../assets/women/women.png";
-import Img2 from "../../assets/women/women2.jpg";
-import Img3 from "../../assets/women/women3.jpg";
-import Img4 from "../../assets/women/women4.jpg";
+import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa6";
+import { useCart } from "../../context/CartContext";
+import { toast } from "react-toastify";
 
-const ProductsData = [
-  {
-    id: 1,
-    img: Img1,
-    title: "Women Ethnic",
-    rating: 5.0,
-    color: "white",
-    aosDelay: "0",
-  },
-  {
-    id: 2,
-    img: Img2,
-    title: "Women western",
-    rating: 4.5,
-    color: "Red",
-    aosDelay: "200",
-  },
-  {
-    id: 3,
-    img: Img3,
-    title: "Goggles",
-    rating: 4.7,
-    color: "brown",
-    aosDelay: "400",
-  },
-  {
-    id: 4,
-    img: Img4,
-    title: "Printed T-Shirt",
-    rating: 4.4,
-    color: "Yellow",
-    aosDelay: "600",
-  },
-  {
-    id: 5,
-    img: Img2,
-    title: "Fashin T-Shirt",
-    rating: 4.5,
-    color: "Pink",
-    aosDelay: "800",
-  },
-];
+const Products = ({ products = [], loading = false, title = "Our Products" }) => {
+  const navigate = useNavigate();
+  const { addToCart, buyNow } = useCart();
 
-const Products = () => {
+  // Format price
+  const formatPrice = (price) => {
+    if (!price) return "Rs. 0";
+    return `Rs. ${price.toLocaleString()}`;
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async (e, product) => {
+    e.stopPropagation(); // Prevent navigation when clicking add to cart
+    if (product.stock === 0) return;
+    await addToCart(product.productId, 1, 'M');
+  };
+
+  // Handle buy now
+  const handleBuyNow = async (e, product) => {
+    e.stopPropagation(); // Prevent navigation when clicking buy now
+    if (product.stock === 0) return;
+    await buyNow(product.productId, 1, 'M');
+  };
+
+  if (loading) {
+    return (
+      <div className="container px-4 py-8 mx-auto">
+        <div className="text-center">
+          <h2 className="mb-8 text-3xl font-bold text-[#4d0708]">{title}</h2>
+        </div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="w-16 h-16 border-4 border-t-4 rounded-full border-[#4d0708] border-t-transparent animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!products.length) {
+    return (
+      <div className="container px-4 py-8 mx-auto">
+        <div className="text-center">
+          <h2 className="mb-8 text-3xl font-bold text-[#4d0708]">{title}</h2>
+        </div>
+        <div className="text-center">
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            No products available at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-14 mb-12">
-      <div className="container">
-        {/* Header section */}
-        <div className="text-center mb-10 max-w-[600px] mx-auto">
-          <p data-aos="fade-up" className="text-sm text-primary">
-            Top Selling Products for you
-          </p>
-          <h1 data-aos="fade-up" className="text-3xl font-bold">
-            Products
-          </h1>
-          <p data-aos="fade-up" className="text-xs text-gray-400">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sit
-            asperiores modi Sit asperiores modi
-          </p>
-        </div>
-        {/* Body section */}
-        <div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center gap-5">
-            {/* card section */}
-            {ProductsData.map((data) => (
-              <div
-                data-aos="fade-up"
-                data-aos-delay={data.aosDelay}
-                key={data.id}
-                className="space-y-3"
-              >
-                <img
-                  src={data.img}
-                  alt=""
-                  className="h-[220px] w-[150px] object-cover rounded-md"
-                />
-                <div>
-                  <h3 className="font-semibold">{data.title}</h3>
-                  <p className="text-sm text-gray-600">{data.color}</p>
-                  <div className="flex items-center gap-1">
-                    <FaStar className="text-yellow-400" />
-                    <span>{data.rating}</span>
-                  </div>
+    <div className="container px-4 py-8 mx-auto">
+      <div className="text-center">
+        <h2 className="mb-8 text-3xl font-bold text-[#4d0708]">{title}</h2>
+      </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center">
+        {products.map((product, idx) => (
+          <div
+            key={product.productId}
+            className="space-y-3 cursor-pointer"
+            data-aos="fade-up"
+            data-aos-delay={idx * 100}
+            onClick={() =>
+              navigate(`/product/${product.productId}`, { state: { product } })
+            }
+          >
+            <div className="relative overflow-hidden h-[220px] w-[150px]">
+              <img
+                src={product.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}
+                alt={product.productName}
+                className="object-cover w-full h-full rounded-md transition-transform duration-300 hover:scale-110"
+              />
+              {product.stock === 0 && (
+                <div className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center">
+                  <span className="px-4 py-2 bg-red-500 text-white rounded">Out of Stock</span>
                 </div>
+              )}
+            </div>
+            <div>
+              <h3 className="font-semibold text-[#4d0708]">{product.productName}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="font-bold text-[#4d0708]">{formatPrice(product.price)}</p>
+                {product.lastPrice && product.lastPrice > product.price && (
+                  <p className="text-sm text-gray-500 line-through">
+                    {formatPrice(product.lastPrice)}
+                  </p>
+                )}
               </div>
-            ))}
+              <div className="flex gap-2 mb-2">
+                {product.isBestSelling && (
+                  <span className="px-2 py-1 text-xs text-white bg-[#4d0708] rounded">Best Seller</span>
+                )}
+                {product.isTopRated && (
+                  <span className="px-2 py-1 text-xs text-white bg-[#4d0708] rounded">Top Rated</span>
+                )}
+              </div>
+              <button
+                className={`px-4 py-2 text-white transition-colors rounded-md ${
+                  product.stock > 0 
+                    ? 'bg-[#4d0708] hover:bg-[#4d0708]/90' 
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+                onClick={(e) => handleAddToCart(e, product)}
+                disabled={product.stock === 0}
+              >
+                {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+              </button>
+            </div>
           </div>
-          {/* view all button */}
-          <div className="flex justify-center">
-            <button className="text-center mt-10 cursor-pointer bg-primary text-white py-1 px-5 rounded-md">
-              View All Button
-            </button>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
